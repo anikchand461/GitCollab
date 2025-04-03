@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Create Project</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="field">
+                <label class="label">Repository Link</label>
+                <input class="input" type="url" name="repo_link" required>
+            </div>
+            <div class="field">
+                <label class="label">Description</label>
+                <textarea class="textarea" name="description" required></textarea>
+            </div>
+            <div class="field">
+                <label class="label">Contributors Needed</label>
+                <input class="input" type="number" name="contributors_needed" min="0" required>
+            </div>
+            <button type="submit" class="button is-primary">Create</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

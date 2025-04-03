@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Projects</h1>
+        {% for project in projects %}
+        <div class="card mb-4">
+            <div class="card-content">
+                <p><a href="{{ project.repo_link }}">{{ project.repo_link }}</a></p>
+                <p>{{ project.description }}</p>
+                <p>Contributors Needed: {{ project.contributors_needed }}</p>
+                <a href="{% url 'project_detail' project.id %}" class="button is-link">View</a>
+            </div>
+        </div>
+        {% endfor %}
+        <a href="{% url 'create_project' %}" class="button is-primary">Add Project</a>
+    </div>
+</section>
+<a href="{% url 'manage_requests' %}" class="button is-primary">View Requests</a>
+{% endblock %}

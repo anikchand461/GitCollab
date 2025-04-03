@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load project_filters %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Contributor Requests</h1>
+        {% for req in requests %}
+        <div class="card mb-4">
+            <div class="card-content">
+                <p>
+                    <a href="https://github.com/{{ req.requester.username }}" 
+                       title="{{ req.requester.username }}'s README: {{ req.requester.username|get_readme_gist }}">
+                        {{ req.requester.username }}
+                    </a> wants to join <a href="{{ req.project.repo_link }}">{{ req.project.repo_link }}</a>
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="request_id" value="{{ req.id }}">
+                    <button name="action" value="accept" class="button is-success">Accept</button>
+                    <button name="action" value="reject" class="button is-danger">Reject</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
