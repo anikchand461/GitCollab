@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Create Project</h1>
+        {% if error %}
+        <p class="notification is-danger">{{ error }}</p>
+        {% endif %}
+        <form method="post" class="box">
+            {% csrf_token %}
+            <div class="field">
+                <label class="label">Repository Link</label>
+                <div class="control">
+                    <input class="input" type="url" name="repo_link" placeholder="https://github.com/username/repo" required>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Description</label>
+                <div class="control">
+                    <textarea class="textarea" name="description" placeholder="Describe your project" required></textarea>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Contributors Needed</label>
+                <div class="control">
+                    <input class="input" type="number" name="contributors_needed" min="0" value="1" required>
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <button type="submit" class="button is-primary">Create Project</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
