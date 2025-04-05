@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Project Platform</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Bytesize';
+      src: url("{% static 'fonts/Bytesized-Regular.ttf' %}") format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+  
+    body {
+      background: linear-gradient(to right, #0f0f0f, #1a1a1a);
+      color: #e6ecf0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Lexend', sans-serif; /* Default font is Lexend */
+    }
+  
+    .login-box {
+      background-color: #15202b;
+      padding: 2.5rem 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+  
+    .logo {
+      display: flex; /* Allow flexbox layout for alignment */
+      align-items: center; /* Vertically center items */
+      justify-content: center; /* Horizontally center items */
+      gap: 0.5rem; /* Add spacing between logo and text */
+      font-size: 2.8rem;
+      color: #ffffff;
+      margin-bottom: 1.2rem;
+    }
+
+    .logo .main-logo {
+      font-size: 2.8rem; /* Match the size of the Bytesize font */
+      color: #ffffff;
+    }
+
+    .logo .bytesize-font {
+      font-family: 'Bytesize', sans-serif; /* Use Bytesize font for Collab */
+      font-size: 2.8rem;
+      color: #ffffff;
+    }
+  
+    .title {
+      color: #ffffff;
+      font-size: 1.7rem;
+      font-weight: 600; /* Use Lexend bold weight */
+      margin-bottom: 0.4rem;
+    }
+  
+    .subtitle {
+      color: #8899a6;
+      font-size: 1rem;
+      font-weight: 400; /* Use Lexend regular weight */
+      margin-bottom: 2rem;
+    }
+  
+    .github-button {
+      background-color: #0d1117;
+      color: #ffffff;
+      border: none;
+      border-radius: 50px;
+      padding: 0.75rem 1.5rem;
+      font-family: 'Lexend', sans-serif; /* Ensure Lexend font */
+      font-weight: 600;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 4px 12px rgba(29, 161, 242, 0.2);
+    }
+  
+    .github-button:hover {
+      background-color: #0d1117;
+      color: #ffffff;
+      transform: scale(1.03);
+      box-shadow: 0 0 12px rgba(29, 161, 242, 0.5);
+    }
+  
+    .github-button .icon {
+      margin-right: 0.6rem;
+    }
+  
+    .footer-note {
+      font-size: 0.85rem;
+      color: #8899a6;
+      font-family: 'Lexend', sans-serif; /* Ensure Lexend font */
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <!-- Updated Logo -->
+    <a class="logo">
+      <i class="fa-brands fa-github main-logo"></i>
+      <strong class="bytesize-font">Collab</strong>
+    </a>
+
+    <h1 class="title">Sign in</h1>
+    <p class="subtitle">to explore and collaborate on projects</p>
+
+    <a href="{% url 'social:begin' 'github' %}" class="github-button">
+      <span class="icon">
+        <i class="fab fa-github"></i>
+      </span>
+      <span>Login with GitHub</span>
+    </a>
+
+    <p class="footer-note">We only use your GitHub to verify your identity.</p>
+  </div>
+</body>
+</html>

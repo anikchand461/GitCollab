@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section" style="padding-top: 3rem;">
+  <div class="container" style="max-width: 720px; margin: auto;">
+    {# Flash Message #}
+    {% if messages %}
+      <div style="position: fixed; top: 1rem; right: 1rem; z-index: 1000;">
+        {% for message in messages %}
+          <div id="flash-message" style="background-color: #141415; color: #fff; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); display: inline-block; max-width: 300px; word-wrap: break-word;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    
+
+    {# Project Info Card #}
+    <div style="background-color: #161b22; border: 1px solid #30363d; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: relative;">
+      <h1 style="font-size: 1.4rem; color: #58a6ff; margin-bottom: 0.5rem;">
+        <strong style="color: #8b949e;">Repo:</strong> 
+        <a href="{{ project.repo_link }}" target="_blank">{{ project.repo_link }}</a>
+      </h1>
+      <p style="color: #c9d1d9; margin-bottom: 0.5rem;">
+        <strong style="color: #8b949e;">Description:</strong> {{ project.description }}
+      </p>
+      <div style="display: flex; align-items: center; justify-content: space-between; color: #8b949e;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <form method="post" class="like-form">
+            {% csrf_token %}
+            <button type="button" class="like-button" data-project-id="{{ project.id }}" style="background: none; border: none; cursor: pointer; color: {% if user in project.likes.all %}red{% else %}#8b949e{% endif %}; display: flex; align-items: center; gap: 0.3rem;">
+              <i class="fas fa-heart" style="font-size: 1.3rem;"></i> 
+              <span class="like-count" style="font-size: 1.1rem;">{{ project.likes.count }}</span>
+            </button>
+          </form>
+          <span>
+            {% if project.contributors_needed > 0 %}
+              <i class="fas fa-user" style="color: #58a6ff;"></i> {{ project.contributors_needed }}
+            {% else %}
+              <i class="fas fa-user-slash" style="color: #8b949e;"></i> No Contributors Needed
+            {% endif %}
+          </span>
+        </div>
+        
+        {% if project.contributors_needed > 0 %}
+        <form method="post">
+          {% csrf_token %}
+          <button name="request_join" type="submit" style="background: white; color: black; border: none; border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 0.9rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fas fa-user-plus"></i> Request to Join
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    
+
+    {# Comments Section #}
+    <h2 style="color: #f0f6fc; font-size: 1.2rem; margin-bottom: 1rem;">Comments</h2>
+    {% for comment in project.comments.all %}
+    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+      <img src="https://github.com/{{ comment.user.username }}.png" alt="{{ comment.user.username }}'s profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+      <div style="background-color: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 0.8rem 1.2rem; flex-grow: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+        <p style="color: #f0f6fc; font-weight: bold;">{{ comment.user.username }}
+          <span style="color: #8b949e; font-size: 0.85rem;">· {{ comment.created_at|date:"F j, Y" }}</span>
+          {% if comment.user == user %}
+          <form method="post" class="is-pulled-right" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="comment_id" value="{{ comment.id }}">
+            <button type="submit" name="delete_comment" title="Delete Comment" style="background-color: transparent; color: #f85149; border: none; cursor: pointer; margin-left: 0.5rem;">
+              <span class="icon"><i class="fas fa-trash"></i></span>
+            </button>
+          </form>
+          {% endif %}
+        </p>
+        <p style="color: #c9d1d9; margin-top: 0.4rem;">{{ comment.text }}</p>
+      </div>
+    </div>
+    {% empty %}
+    <p class="notification is-info" style="border-radius: 10px; background-color: #0d1117; color: #f0f6fc; border: 1px solid #30363d;">
+      No comments yet. Be the first to comment!
+    </p>
+    {% endfor %}
+
+    {# New Comment Form #}
+    <form id="comment-form" method="post" style="margin-top: 2rem;">
+      {% csrf_token %}
+      <div style="display: flex; gap: 1rem;">
+        <img src="https://github.com/{{ request.user.username }}.png" alt="{{ request.user.username }}'s profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+        <div class="field" style="flex-grow: 1; position: relative;">
+          <div class="control">
+            <textarea id="comment-text" name="comment" class="textarea" placeholder="Add a comment" style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; resize: none; padding: 0.8rem;"></textarea>
+          </div>
+          <button id="post-comment-btn" type="submit" class="button" disabled style="background-color: #30363d; color: #8b949e; border: none; border-radius: 50%; width: 36px; height: 36px; position: absolute; bottom: 0.5rem; right: 0.5rem; cursor: not-allowed;">
+            <span class="icon"><i class="fas fa-paper-plane"></i></span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+// Get CSRF token from the form
+function getCsrfToken() {
+    const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    return csrfInput ? csrfInput.value : '';
+}
+
+// Set up like button event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const likeButton = document.querySelector('.like-button');
+    if (likeButton) {
+        likeButton.addEventListener('click', function() {
+            const projectId = this.dataset.projectId;
+            toggleLike(this, projectId);
+        });
+    }
+});
+
+// Handle Like Button Click with AJAX
+function toggleLike(button, projectId) {
+    const heartIcon = button.querySelector('.fas.fa-heart');
+    const likeCountElement = button.querySelector('.like-count');
+    const csrfToken = getCsrfToken();
+
+    fetch(`/project/${projectId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'like=true'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        button.style.color = data.liked ? 'red' : '#8b949e';
+        likeCountElement.textContent = data.like_count;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// Hide Flash Message After 3 Seconds
+setTimeout(() => {
+    const flash = document.getElementById('flash-message');
+    if (flash) flash.style.display = 'none';
+}, 2000);
+
+// Enable/Disable Post Comment Button Based on Textarea Content
+const commentTextarea = document.getElementById('comment-text');
+const postCommentBtn = document.getElementById('post-comment-btn');
+
+commentTextarea.addEventListener('input', () => {
+    if (commentTextarea.value.trim()) {
+        postCommentBtn.disabled = false;
+        postCommentBtn.style.backgroundColor = '#238636';
+        postCommentBtn.style.color = '#fff';
+        postCommentBtn.style.cursor = 'pointer';
+    } else {
+        postCommentBtn.disabled = true;
+        postCommentBtn.style.backgroundColor = '#30363d';
+        postCommentBtn.style.color = '#8b949e';
+        postCommentBtn.style.cursor = 'not-allowed';
+    }
+});
+
+// Submit Comment on Pressing Enter Key
+commentTextarea.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && commentTextarea.value.trim()) {
+        event.preventDefault();
+        document.getElementById('comment-form').submit();
+    }
+});
+</script>
+{% endblock %}

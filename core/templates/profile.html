@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section" style="padding-top: 3rem;">
+  <div class="container" style="max-width: 1200px; margin: auto;">
+    {# Flash Message #}
+    {% if messages %}
+      <div style="position: fixed; top: 1rem; right: 1rem; z-index: 1000;">
+        {% for message in messages %}
+          <div id="flash-message" style="background-color: #141415; color: #fff; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); display: inline-block; max-width: 300px; word-wrap: break-word;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+      <!-- Left Panel -->
+      <div style="flex: 1;">
+        <div style="text-align: center;">
+          <img src="{{ github_avatar }}" alt="{{ github_username }}'s profile" style="width: 210px; height: 210px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem;">
+          <h1 style="font-size: 1.5rem; color: #f0f6fc; margin: 0;">{{ github_username }}</h1>
+          <p style="color: #ff008c; margin: 0;">Total Likes: {{ reputation }}</p>
+        </div>
+
+        <br>
+        <br>
+
+        <div style="margin-bottom: 1rem;">
+          <h3 style="color: #f0f6fc; font-size: 1.2rem; margin-bottom: 0.5rem;">Social Links</h3>
+          <div style="color: #c9d1d9; background-color: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 1rem;">
+            {% if profile.twitter %}
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <i class="fab fa-twitter" style="color: #1da1f2; font-size: 1.2rem;"></i>
+                <a href="{{ profile.twitter }}" target="_blank" style="color: #58a6ff; text-decoration: none;">{{ profile.twitter }}</a>
+              </div>
+            {% endif %}
+            
+            {% if profile.linkedin %}
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-linkedin" style="color: #0077b5; font-size: 1.2rem;"></i>
+                <a href="{{ profile.linkedin }}" target="_blank" style="color: #58a6ff; text-decoration: none;">{{ profile.linkedin }}</a>
+              </div>
+            {% endif %}
+            
+            {% if not profile.twitter and not profile.linkedin %}
+              <p>No social links provided</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Crowdfunding Section -->
+        <div style="margin-bottom: 1rem;">
+            <h3 style="color: #f0f6fc; font-size: 1.2rem; margin-bottom: 0.5rem;">Crowdfunding</h3>
+            <div style="color: #c9d1d9; background-color: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 1rem;">
+            {% if profile.buy_me_a_coffee or profile.patreon or profile.paypal %}
+                <div style="display: flex; gap: 1.5rem; align-items: center;">
+                {% if profile.buy_me_a_coffee %}
+                    <a href="{{ profile.buy_me_a_coffee }}" target="_blank" style="display: flex; align-items: center; gap: 0.4rem; text-decoration: none; color: #f0f6fc;">
+                    <i class="fas fa-coffee" style="color: #ffdd00; font-size: 1.2rem;"></i>
+                    <span>Buy Me a Coffee</span>
+                    </a>
+                {% endif %}
+                {% if profile.patreon %}
+                    <a href="{{ profile.patreon }}" target="_blank" style="display: flex; align-items: center; gap: 0.4rem; text-decoration: none; color: #f0f6fc;">
+                      <i class="fa-brands fa-patreon" style="color: #ffffff;"></i>
+                    <span>Patreon</span>
+                    </a>
+                {% endif %}
+                {% if profile.paypal %}
+                    <a href="{{ profile.paypal }}" target="_blank" style="display: flex; align-items: center; gap: 0.4rem; text-decoration: none; color: #f0f6fc;">
+                    <i class="fab fa-paypal" style="color: #009cde; font-size: 1.2rem;"></i>
+                    <span>PayPal</span>
+                    </a>
+                {% endif %}
+                </div>
+            {% else %}
+                <p>No crowdfunding links provided</p>
+            {% endif %}
+            </div>
+        </div>
+  
+      </div>
+
+      <!-- Right Panel -->
+      <div style="flex: 2; background-color: #161b22; border: 1px solid #30363d; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+        <!-- View Mode -->
+        <div id="profile-view" style="{% if is_new_user %}display:none;{% endif %}">
+          <div style="margin-bottom: 1.5rem;">
+            <h2 style="color: #f0f6fc; font-size: 1.2rem; margin-bottom: 0.5rem;">Bio</h2>
+            <div style="color: #c9d1d9; background-color: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 1rem; min-height: 60px;">
+              {{ profile.bio|linebreaks }}
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <h2 style="color: #f0f6fc; font-size: 1.2rem; margin-bottom: 0.5rem;">README</h2>
+            <div style="color: #c9d1d9; background-color: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 1rem; overflow-x: auto;">
+              <div class="markdown-body" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;">
+                {{ readme_html|safe }}
+              </div>
+            </div>
+          </div>
+          
+          <button id="edit-profile-btn" style="background-color: #238636; color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer;">Edit Profile</button>
+        </div>
+
+        <!-- Edit Mode -->
+        <div id="profile-edit" style="{% if not is_new_user %}display:none;{% endif %}">
+          <form method="post" action="{% url 'profile' %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 1rem;">
+              <label style="color: #f0f6fc; font-weight: bold; display: block; margin-bottom: 0.5rem;">Bio</label>
+              <textarea name="bio" placeholder="Tell us about yourself..." style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; resize: vertical; padding: 0.8rem; min-height: 100px;">{{ profile.bio }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="color: #f0f6fc; font-weight: bold; display: block; margin-bottom: 0.5rem;">README (Markdown)</label>
+              <textarea name="readme" placeholder="Write your README in Markdown..." style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; resize: vertical; padding: 0.8rem; min-height: 200px;">{{ profile.readme }}</textarea>
+              <button type="submit" name="import_readme" style="background-color: #0d1117; color: #58a6ff; border: 1px solid #30363d; border-radius: 8px; padding: 0.5rem 1rem; margin-top: 0.5rem; cursor: pointer;">Import GitHub README</button>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="color: #f0f6fc; font-weight: bold; display: block; margin-bottom: 0.5rem;">Social Links</label>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <i class="fab fa-twitter" style="color: #1da1f2; font-size: 1.2rem;"></i>
+                <input type="url" name="twitter" value="{{ profile.twitter|default:'' }}" placeholder="https://twitter.com/yourusername" style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; padding: 0.8rem;">
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-linkedin" style="color: #0077b5; font-size: 1.2rem;"></i>
+                <input type="url" name="linkedin" value="{{ profile.linkedin|default:'' }}" placeholder="https://linkedin.com/in/yourusername" style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; padding: 0.8rem;">
+              </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="color: #f0f6fc; font-weight: bold; display: block; margin-bottom: 0.5rem;">Crowdfunding Links</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <i class="fas fa-coffee" style="color: #ffdd00; font-size: 1.2rem;"></i>
+                  <input type="url" name="buy_me_a_coffee" value="{{ profile.buy_me_a_coffee|default:'' }}" placeholder="https://buymeacoffee.com/yourusername" style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; padding: 0.8rem;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <i class="fab fa-patreon" style="color: #f96854; font-size: 1.2rem;"></i>
+                  <input type="url" name="patreon" value="{{ profile.patreon|default:'' }}" placeholder="https://patreon.com/yourusername" style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; padding: 0.8rem;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="fab fa-paypal" style="color: #009cde; font-size: 1.2rem;"></i>
+                  <input type="url" name="paypal" value="{{ profile.paypal|default:'' }}" placeholder="https://paypal.me/yourusername" style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; padding: 0.8rem;">
+                </div>
+              </div>
+
+            <div style="display: flex; gap: 1rem;">
+              <button type="submit" style="background-color: #238636; color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer;">
+                {% if is_new_user %}Save Profile{% else %}Update Profile{% endif %}
+              </button>
+              {% if not is_new_user %}
+              <button type="button" id="cancel-edit-btn" style="background-color: #21262d; color: #f0f6fc; border: 1px solid #30363d; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer;">Cancel</button>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Handle flash messages
+setTimeout(() => {
+    const flash = document.getElementById('flash-message');
+    if (flash) {
+        flash.style.opacity = '0';
+        flash.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+            if (flash) flash.style.display = 'none';
+        }, 500);
+    }
+}, 3000);
+
+// Handle edit mode toggling
+document.addEventListener('DOMContentLoaded', function() {
+    const editBtn = document.getElementById('edit-profile-btn');
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    const viewMode = document.getElementById('profile-view');
+    const editMode = document.getElementById('profile-edit');
+    
+    if (editBtn) {
+        editBtn.addEventListener('click', function() {
+            viewMode.style.display = 'none';
+            editMode.style.display = 'block';
+        });
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            editMode.style.display = 'none';
+            viewMode.style.display = 'block';
+        });
+    }
+});
+</script>
+
+<!-- GitHub Markdown CSS -->
+<style>
+.markdown-body {
+  color: #c9d1d9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.markdown-body h1, .markdown-body h2 {
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 0.3em;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3, 
+.markdown-body h4, .markdown-body h5, .markdown-body h6 {
+  color: #f0f6fc;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.markdown-body a {
+  color: #58a6ff;
+  text-decoration: none;
+}
+
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-body pre {
+  background-color: #161b22;
+  border-radius: 6px;
+  padding: 16px;
+  overflow: auto;
+}
+
+.markdown-body code {
+  background-color: rgba(110, 118, 129, 0.4);
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace;
+  font-size: 85%;
+  padding: 0.2em 0.4em;
+}
+
+.markdown-body blockquote {
+  border-left: 0.25em solid #3b434b;
+  color: #8b949e;
+  padding: 0 1em;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.markdown-body table th, .markdown-body table td {
+  border: 1px solid #30363d;
+  padding: 6px 13px;
+}
+
+.markdown-body table tr {
+  background-color: #0d1117;
+  border-top: 1px solid #30363d;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #161b22;
+}
+
+.markdown-body ul, .markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body li + li {
+  margin-top: 0.25em;
+}
+
+.markdown-body hr {
+  background-color: #30363d;
+  border: 0;
+  height: 0.25em;
+  margin: 24px 0;
+  padding: 0;
+}
+</style>
+{% endblock %}

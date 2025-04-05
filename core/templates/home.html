@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load project_filters %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Projects</h1>
+        {% for project in projects %}
+        <div class="card mb-4">
+            <div class="card-content">
+                <div class="content">
+                    <p><a href="{{ project.repo_link }}" target="_blank" style="color: #58a6ff; text-decoration: none;">{{ project.repo_link }}</a></p>
+                    <p>{{ project.description }}</p>
+                    <p><strong>Contributors Needed:</strong> {{ project.contributors_needed }}</p>
+                    <p><strong>Likes:</strong> {{ project.likes.count }}</p>
+                    <p>
+                        <strong>Top Requests:</strong>
+                        {% with requests=project_requests|lookup:project.id %}
+                            {% if requests %}
+                                {% for user in requests %}
+                                <a href="https://github.com/{{ user.username }}" target="_blank" title="{{ user.username }}">
+                                    <img src="{{ user.avatar_url }}" alt="{{ user.username }}" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 5px;">
+                                </a>
+                                {% endfor %}
+                            {% else %}
+                                None
+                            {% endif %}
+                        {% endwith %}
+                    </p>
+                    <!-- Display Payment Options with Links -->
+                    <p>
+                        <strong>Payment Options:</strong>
+                        {% if project.buy_me_a_coffee_url or project.patreon_url or project.paypal_url %}
+                            {% if project.buy_me_a_coffee_url %}
+                                <a href="{{ project.buy_me_a_coffee_url }}" target="_blank" style="color: #f0f6fc; text-decoration: underline;">Buy Me A Coffee</a><br>
+                            {% endif %}
+                            {% if project.patreon_url %}
+                                <a href="{{ project.patreon_url }}" target="_blank" style="color: #f0f6fc; text-decoration: underline;">Patreon</a><br>
+                            {% endif %}
+                            {% if project.paypal_url %}
+                                <a href="{{ project.paypal_url }}" target="_blank" style="color: #f0f6fc; text-decoration: underline;">PayPal</a><br>
+                            {% endif %}
+                        {% else %}
+                            <span style="color: #8b949e;">None</span>
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'project_detail' project.id %}" class="button is-link" style="background-color: #238636; border: none; padding: 0.5rem 1rem; border-radius: 12px;">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="notification is-info">No projects available yet. Create one to get started!</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

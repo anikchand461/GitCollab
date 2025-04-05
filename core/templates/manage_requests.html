@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load project_filters %}
+{% block content %}
+<section class="section" style="padding-top: 3rem;">
+  <div class="container" style="max-width: 800px; margin: 0 auto;">
+    <h1 class="title has-text-white" style="font-family: 'Bytesize', sans-serif; font-size: 40px;">Contributor Requests</h1>
+
+    {% if message %}
+    <p class="notification is-success" style="border-radius: 12px;">{{ message }}</p>
+    {% elif error %}
+    <p class="notification is-danger" style="border-radius: 12px;">{{ error }}</p>
+    {% endif %}
+
+    {% for req in requests %}
+    <div class="box" style="
+      background-color: #161b22;
+      border-radius: 14px;
+      border: 1px solid #30363d;
+      margin-bottom: 1.5rem;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    ">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center;">
+          <a href="https://github.com/{{ req.github_username }}" 
+             title="README: {{ req.github_username|get_readme_gist }}" 
+             target="_blank" 
+             style="text-decoration: none;">
+            <img src="{{ req.avatar_url }}" 
+                 alt="{{ req.github_username }}" 
+                 style="width: 42px; height: 42px; border-radius: 50%; margin-right: 12px; border: 1px solid #30363d;">
+          </a>
+          <div style="color: #f0f6fc;">
+            <strong style="color: #cf3c92;">{{ req.github_username }}</strong><br>
+            <small>wants to join <a href="{{ req.project.repo_link }}" target="_blank" style="color: #58a6ff;">{{ req.project.repo_link }}</a></small>
+          </div>
+        </div>
+        <form method="post" style="display: flex; gap: 0.5rem;">
+          {% csrf_token %}
+          <input type="hidden" name="request_id" value="{{ req.id }}">
+          <button name="action" value="accept" class="button" style="
+            background-color: #238636;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+          ">
+            <i class="fas fa-check"></i>
+          </button>
+          <button name="action" value="reject" class="button" style="
+            background-color: #da3633;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+          ">
+            <i class="fas fa-times"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+    {% empty %}
+    <p class="notification is-info" style="border-radius: 12px;">No pending contributor requests.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
