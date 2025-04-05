@@ -146,6 +146,62 @@ def project_detail(request, project_id):
     return render(request, 'project_detail.html', {'project': project})
 
 @login_required
+def profile_view(request):
+    # Get or create the user's profile
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        if 'import_readme' in request.POST:
+            # Manual README import requested
+            github_username = request.user.username
+            readme_url = f"https://raw.githubusercontent.com/{github_username}/{github_username}/main/README.md"
+            try:
+                readme_response = requests.get(readme_url, timeout=5)
+                if readme_response.status_code == 200:
+                    profile.readme = readme_response.text
+                    profile.save()
+                    messages.success(request, 'README imported successfully.')
+                else:
+                    messages.error(request, f'Could not find a README for your GitHub profile (Status: {readme_response.status_code}).')
+            except requests.RequestException as e:
+                messages.error(request, f'Error connecting to GitHub: {str(e)}')
+            return redirect('profile')
+        else:
+            # Normal profile update
+            profile.bio = request.POST.get('bio', '')
+            profile.readme = request.POST.get('readme', '')  # Save user-edited README
+            profile.twitter = request.POST.get('twitter', '')
+            profile.linkedin = request.POST.get('linkedin', '')
+            profile.buy_me_a_coffee = request.POST.get('buy_me_a_coffee', '')
+            profile.patreon = request.POST.get('patreon', '')
+            profile.paypal = request.POST.get('paypal', '')
+            profile.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect('profile')
+
+    # Only fetch GitHub README on initial page load, not on every request
+    github_username = request.user.username
+    github_avatar = f"https://github.com/{github_username}.png"
+    
+    # Calculate reputation
+    reputation = profile.reputation_score()
+    
+    # Convert README from markdown to HTML
+    import markdown
+    readme_html = markdown.markdown(profile.readme) if profile.readme else ""
+    
+    context = {
+        'profile': profile,
+        'github_username': github_username,
+        'github_avatar': github_avatar,
+        'reputation': reputation,
+        'readme_html': readme_html,
+        'is_new_user': created,  # Pass whether this is a new user
+    }
+    return render(request, 'profile.html', context)
+
+
+@login_required
 def manage_requests(request):
     projects = Project.objects.filter(owner=request.user)
     if not projects.exists():
@@ -273,58 +329,3 @@ def manage_requests(request):
             req.save()
     
     return render(request, 'manage_requests.html', {'requests': contributor_requests})
-
-@login_required
-def profile_view(request):
-    # Get or create the user's profile
-    profile, created = Profile.objects.get_or_create(user=request.user)
-    
-    if request.method == 'POST':
-        if 'import_readme' in request.POST:
-            # Manual README import requested
-            github_username = request.user.username
-            readme_url = f"https://raw.githubusercontent.com/{github_username}/{github_username}/main/README.md"
-            try:
-                readme_response = requests.get(readme_url, timeout=5)
-                if readme_response.status_code == 200:
-                    profile.readme = readme_response.text
-                    profile.save()
-                    messages.success(request, 'README imported successfully.')
-                else:
-                    messages.error(request, f'Could not find a README for your GitHub profile (Status: {readme_response.status_code}).')
-            except requests.RequestException as e:
-                messages.error(request, f'Error connecting to GitHub: {str(e)}')
-            return redirect('profile')
-        else:
-            # Normal profile update
-            profile.bio = request.POST.get('bio', '')
-            profile.readme = request.POST.get('readme', '')  # Save user-edited README
-            profile.twitter = request.POST.get('twitter', '')
-            profile.linkedin = request.POST.get('linkedin', '')
-            profile.buy_me_a_coffee = request.POST.get('buy_me_a_coffee', '')
-            profile.patreon = request.POST.get('patreon', '')
-            profile.paypal = request.POST.get('paypal', '')
-            profile.save()
-            messages.success(request, 'Profile updated successfully.')
-            return redirect('profile')
-
-    # Only fetch GitHub README on initial page load, not on every request
-    github_username = request.user.username
-    github_avatar = f"https://github.com/{github_username}.png"
-    
-    # Calculate reputation
-    reputation = profile.reputation_score()
-    
-    # Convert README from markdown to HTML
-    import markdown
-    readme_html = markdown.markdown(profile.readme) if profile.readme else ""
-    
-    context = {
-        'profile': profile,
-        'github_username': github_username,
-        'github_avatar': github_avatar,
-        'reputation': reputation,
-        'readme_html': readme_html,
-        'is_new_user': created,  # Pass whether this is a new user
-    }
-    return render(request, 'profile.html', context)
