@@ -9,6 +9,7 @@ from social_django.models import UserSocialAuth
 from django.contrib import messages
 from django.conf import settings
 from django.db.models import Min
+from django.utils.html import mark_safe
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -41,7 +42,7 @@ def home(request):
             avatar_url = f"https://github.com/{user.username}.png"
             request_user_info.append({
                 'username': user.username,
-                'avatar': avatar_url,  # Fixed from 'avatar_url'
+                'avatar': avatar_url,
             })
 
         project_requests[project.id] = request_user_info
@@ -58,6 +59,20 @@ def home(request):
                     project.forks_count = data.get("forks_count", 0)
             except Exception:
                 project.forks_count = None
+
+        # Fetch README from GitHub API
+        project.readme_html = None
+        if project.repo_link and 'github.com' in project.repo_link:
+            try:
+                owner_repo = project.repo_link.split("github.com/")[1].replace('.git', '')
+                readme_url = f"https://raw.githubusercontent.com/{owner_repo}/main/README.md"
+                readme_response = requests.get(readme_url, timeout=5)
+                if readme_response.status_code == 200:
+                    readme_content = readme_response.text
+                    # Convert Markdown to HTML
+                    project.readme_html = mark_safe(markdown.markdown(readme_content))
+            except Exception:
+                project.readme_html = None
 
         # Payment URLs
         profile = Profile.objects.filter(user=project.owner).first()

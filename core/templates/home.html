@@ -1,111 +1,447 @@
 {% extends 'base.html' %}
 {% load project_filters %}
 {% block content %}
+
+<style>
+    /* Custom dark scrollbar styling */
+    .dark-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .dark-scrollbar::-webkit-scrollbar-track {
+        background: #0d1117;
+        border-radius: 4px;
+    }
+    
+    .dark-scrollbar::-webkit-scrollbar-thumb {
+        background: #30363d;
+        border-radius: 4px;
+    }
+    
+    .dark-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #434b56;
+    }
+    
+    /* For Firefox */
+    .dark-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #30363d #0d1117;
+    }
+
+    /* Card styling improvements */
+    .project-card {
+        background-color: #161b22; 
+        border-radius: 12px; 
+        overflow: hidden; 
+        position: relative; 
+        margin-bottom: 1.5rem;
+    }
+
+    .card-content {
+        color: #c9d1d9; 
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main-content {
+        flex: 1;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .footer-content {
+        border-top: 1px solid #30363d;
+        padding-top: 1rem;
+        margin-top: auto;
+    }
+
+    .repo-link {
+        font-weight: bold; 
+        font-size: 1.2rem; 
+        margin-bottom: 0.75rem; 
+        margin-top: 0.5rem; 
+        white-space: nowrap; 
+        overflow: hidden; 
+        text-overflow: ellipsis;
+    }
+
+    .repo-link a {
+        color: #58a6ff; 
+        text-decoration: none;
+    }
+
+    .description {
+        margin-bottom: 1rem; 
+        color: #ffffff; 
+        font-size: 0.95rem; 
+        line-height: 1.5;
+    }
+
+    .readme-section {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .readme-preview {
+        max-height: 80px; 
+        overflow: hidden; 
+        font-size: 0.9rem; 
+        color: #ffffff;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .gradient-fade {
+        position: absolute; 
+        bottom: 0; 
+        left: 0; 
+        right: 0; 
+        height: 30px; 
+        background: linear-gradient(to bottom, rgba(22, 27, 34, 0), rgba(22, 27, 34, 1));
+    }
+
+    .toggle-button {
+        background: none; 
+        border: none; 
+        color: #58a6ff; 
+        cursor: pointer; 
+        font-size: 0.85rem; 
+        padding: 0.5rem 0;
+    }
+
+    .full-readme {
+        display: none; 
+        max-height: 200px; 
+        overflow-y: auto; 
+        font-size: 0.9rem; 
+        color: #ffffff;
+        border-radius: 6px;
+        padding: 8px;
+        background-color: #1c2129;
+    }
+
+    .requests-section {
+        display: flex; 
+        align-items: center; 
+        margin-bottom: 0.75rem; 
+        gap: 0.5rem;
+    }
+
+    .requests-label {
+        color: #8b949e; 
+        font-size: 0.9rem; 
+        margin-right: 0.5rem;
+    }
+
+    .stats-row {
+        display: flex; 
+        flex-wrap: wrap; 
+        align-items: center; 
+        justify-content: space-between; 
+        gap: 1rem; 
+        font-size: 1rem;
+    }
+
+    .payment-options {
+        display: flex; 
+        gap: 0.75rem; 
+        align-items: center;
+    }
+
+    .stats-icons {
+        display: flex; 
+        gap: 1.25rem;
+    }
+
+    .stat-item {
+        display: flex; 
+        align-items: center; 
+        gap: 0.25rem;
+    }
+
+    .view-button {
+        position: absolute; 
+        top: 10px; 
+        right: 10px; 
+        background-color: #ffffff; 
+        color: #161b22; 
+        border: none; 
+        border-radius: 12px; 
+        padding: 0.25rem 0.75rem; 
+        z-index: 10;
+    }
+
+    .matching-tag {
+        position: absolute; 
+        top: 10px; 
+        left: 10px; 
+        background-color: #238636; 
+        color: white; 
+        font-size: 0.75rem; 
+        padding: 0.25rem 0.5rem; 
+        border-radius: 4px; 
+        z-index: 10;
+    }
+</style>
+
 <section class="section">
-    <div class="container">
-        <h1 class="title">Projects</h1>
-        {% if matched_projects %}
-        <h2 class="subtitle has-text-white" style="margin-bottom: 1rem;">Projects Matching Your Skills</h2>
+    <div class="container" style="max-width: 600px; margin: 0 auto;">
+        <h1 class="title has-text-white" style="
+      font-family: 'Bytesize', sans-serif;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 40px;
+    ">
+      All Projects
+    </h1>
+
+        <!-- Projects Feed - All in a single vertical column -->
+        
+        <!-- Matched Projects First -->
         {% for project in matched_projects %}
-        <div class="card mb-4" style="border-left: 4px solid #238636;">
+        <div class="project-card">
+            <!-- View Details Button (Top Right Corner) -->
+            <a href="{% url 'project_detail' project.id %}" class="button is-small view-button">View</a>
+            
+            <!-- Matching Tag -->
+            <div class="matching-tag bytesized-font">
+                Matching
+            </div>
+            
             <div class="card-content">
-                <div class="content">
-                    <p><a href="{{ project.repo_link }}" target="_blank" style="color: #58a6ff; text-decoration: none;">{{ project.repo_link }}</a></p>
-                    <p>{{ project.description }}</p>
-                    <p><strong>Contributors Needed:</strong> {{ project.contributors_needed }}</p>
-                    <p><strong>Likes:</strong> {{ project.likes.count }}</p>
-                    <p>
-                        <strong>Top Requests:</strong>
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Repo Link -->
+                    <p class="bytesized-font repo-link">
+                        <a href="{{ project.repo_link }}" target="_blank">{{ project.repo_link }}</a>
+                    </p>
+                    
+                    <!-- Description -->
+                    <p class="bytesized-font description">
+                        {{ project.description }}
+                    </p>
+                    
+                    <!-- README Section -->
+                    <div class="readme-section">
+                        <div id="readme-preview-{{ project.id }}" class="bytesized-font readme-preview">
+                            {{ project.readme_html|truncatewords_html:25|safe }}
+                            <!-- Gradient fade effect -->
+                            <div class="gradient-fade"></div>
+                        </div>
+                        <button 
+                            onclick="toggleReadme('{{ project.id }}')" 
+                            class="bytesized-font toggle-button"
+                        >
+                            <i id="arrow-icon-{{ project.id }}" class="fas fa-chevron-down"></i> <span id="toggle-text-{{ project.id }}">Read more</span>
+                        </button>
+                        <div id="full-readme-{{ project.id }}" class="bytesized-font full-readme dark-scrollbar">
+                            {{ project.readme_html|safe }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer Content -->
+                <div class="footer-content">
+                    <!-- Top Requests with GitHub Profile Images -->
+                    <div class="requests-section">
+                        <span class="bytesized-font requests-label">Requests:</span>
                         {% with requests=project_requests|lookup:project.id %}
                             {% if requests %}
                                 {% for user in requests %}
                                 <a href="https://github.com/{{ user.username }}" target="_blank" title="{{ user.username }}">
-                                    <img src="{{ user.avatar }}" alt="{{ user.username }}" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 5px;">
+                                    <img src="{{ user.avatar }}" alt="{{ user.username }}" style="width: 32px; height: 32px; border-radius: 50%;">
                                 </a>
                                 {% endfor %}
                             {% else %}
-                                None
+                                <span class="bytesized-font" style="color: #8b949e; font-size: 0.9rem;">None</span>
                             {% endif %}
                         {% endwith %}
-                    </p>
-                    <p>
-                        <strong>Payment Options:</strong>
-                        {% if project.buy_me_a_coffee or project.patreon or project.paypal %}
+                    </div>
+                    
+                    <!-- Stats Row (Payment options, Likes, Forks, Contributors) -->
+                    <div class="stats-row">
+                        <!-- Payment Options -->
+                        <div class="payment-options">
                             {% if project.buy_me_a_coffee %}
-                                <a href="{{ project.buy_me_a_coffee }}" target="_blank" style="color: #f0f6fc; text-decoration: underline;">Buy Me A Coffee</a><br>
+                                <a href="{{ project.buy_me_a_coffee }}" target="_blank" title="Buy Me A Coffee">
+                                    <i class="fas fa-coffee" style="color: #ffdd00; font-size: 1.3rem;"></i>
+                                </a>
                             {% endif %}
                             {% if project.patreon %}
-                                <a href="{{ project.patreon }}" target="_blank" style="color: #f0f6fc; text-decoration: underline;">Patreon</a><br>
+                                <a href="{{ project.patreon }}" target="_blank" title="Patreon">
+                                    <i class="fa-brands fa-patreon" style="color: #ffffff; font-size: 1.3rem;"></i>
+                                </a>
                             {% endif %}
                             {% if project.paypal %}
-                                <a href="{{ project.paypal }}" target="_blank" style="color: #f0f6fc; text-decoration: underline;">PayPal</a><br>
+                                <a href="{{ project.paypal }}" target="_blank" title="PayPal">
+                                    <i class="fab fa-paypal" style="color: #009cde; font-size: 1.3rem;"></i>
+                                </a>
                             {% endif %}
-                        {% else %}
-                            <span style="color: #8b949e;">None</span>
-                        {% endif %}
-                    </p>
-                    <a href="{% url 'project_detail' project.id %}" class="button is-link" style="background-color: #238636; border: none; padding: 0.5rem 1rem; border-radius: 12px;">View Details</a>
+                        </div>
+                        
+                        <div class="stats-icons">
+                            <!-- Likes with Heart Icon -->
+                            <div title="Likes" class="stat-item">
+                                <i class="fas fa-heart" style="color: #f85149; font-size: 1.3rem;"></i>
+                                <span class="bytesized-font">{{ project.likes.count }}</span>
+                            </div>
+                            
+                            <!-- Forks with Icon -->
+                            {% if project.forks_count is not None %}
+                            <div title="Forks" class="stat-item">
+                                <i class="fas fa-code-branch" style="color: #58a6ff; font-size: 1.3rem;"></i>
+                                <span class="bytesized-font">{{ project.forks_count }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Contributors Needed with Icon -->
+                            <div title="Contributors Needed" class="stat-item">
+                                <i class="fas fa-users" style="color: #7ee787; font-size: 1.3rem;"></i>
+                                <span class="bytesized-font">{{ project.contributors_needed }}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         {% endfor %}
-        {% endif %}
 
-        <h2 class="subtitle has-text-white" style="margin-top: 2rem; margin-bottom: 1rem;">All Projects</h2>
+        <!-- All Other Projects -->
+        {% if matched_projects %}
+        <h2 class="subtitle bytesized-font has-text-white" style="margin-top: 2rem; margin-bottom: 2rem;">All Projects</h2>
+        {% endif %}
+        
         {% for project in projects %}
         {% if project not in matched_projects %}
-        <div class="card mb-4">
+        <div class="project-card">
+            <!-- View Details Button (Top Right Corner) -->
+            <a href="{% url 'project_detail' project.id %}" class="button is-small view-button">View</a>
+            
             <div class="card-content">
-                <div class="content">
-                    <p><a href="{{ project.repo_link }}" target="_blank" style="color: #58a6ff; text-decoration: none;">{{ project.repo_link }}</a></p>
-                    <p>{{ project.description }}</p>
-                    <p><strong>Contributors Needed:</strong> {{ project.contributors_needed }}</p>
-                    <p><strong>Likes:</strong> {{ project.likes.count }}</p>
-                    <p>
-                        <strong>Top Requests:</strong>
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Repo Link -->
+                    <p class="bytesized-font repo-link">
+                        <a href="{{ project.repo_link }}" target="_blank">{{ project.repo_link }}</a>
+                    </p>
+                    
+                    <!-- Description -->
+                    <p class="bytesized-font description">
+                        {{ project.description }}
+                    </p>
+                    
+                    <!-- README Section -->
+                    <div class="readme-section">
+                        <div id="readme-preview-{{ project.id }}" class="bytesized-font readme-preview">
+                            {{ project.readme_html|truncatewords_html:25|safe }}
+                            <!-- Gradient fade effect -->
+                            <div class="gradient-fade"></div>
+                        </div>
+                        <button 
+                            onclick="toggleReadme('{{ project.id }}')" 
+                            class="bytesized-font toggle-button"
+                        >
+                            <i id="arrow-icon-{{ project.id }}" class="fas fa-chevron-down"></i> <span id="toggle-text-{{ project.id }}">Read more</span>
+                        </button>
+                        <div id="full-readme-{{ project.id }}" class="bytesized-font full-readme dark-scrollbar">
+                            {{ project.readme_html|safe }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer Content -->
+                <div class="footer-content">
+                    <!-- Top Requests with GitHub Profile Images -->
+                    <div class="requests-section">
+                        <span class="bytesized-font requests-label">Requests:</span>
                         {% with requests=project_requests|lookup:project.id %}
                             {% if requests %}
                                 {% for user in requests %}
                                 <a href="https://github.com/{{ user.username }}" target="_blank" title="{{ user.username }}">
-                                    <img src="{{ user.avatar }}" alt="{{ user.username }}" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 5px;">
+                                    <img src="{{ user.avatar }}" alt="{{ user.username }}" style="width: 32px; height: 32px; border-radius: 50%;">
                                 </a>
                                 {% endfor %}
                             {% else %}
-                                None
+                                <span class="bytesized-font" style="color: #8b949e; font-size: 0.9rem;">None</span>
                             {% endif %}
                         {% endwith %}
-                    </p>
-                    <p>
-                        <strong>Payment Options:</strong>
-                        {% if project.buy_me_a_coffee or project.patreon or project.paypal %}
+                    </div>
+                    
+                    <!-- Stats Row (Payment options, Likes, Forks, Contributors) -->
+                    <div class="stats-row">
+                        <!-- Payment Options -->
+                        <div class="payment-options">
                             {% if project.buy_me_a_coffee %}
-                                <a href="{{ project.buy_me_a_coffee }}" target="_blank" style="color: #f0f6fc; text-decoration: underline;">Buy Me A Coffee</a><br>
+                                <a href="{{ project.buy_me_a_coffee }}" target="_blank" title="Buy Me A Coffee">
+                                    <i class="fas fa-coffee" style="color: #ffdd00; font-size: 1.3rem;"></i>
+                                </a>
                             {% endif %}
                             {% if project.patreon %}
-                                <a href="{{ project.patreon }}" target="_blank" style="color: #f0f6fc; text-decoration: underline;">Patreon</a><br>
+                                <a href="{{ project.patreon }}" target="_blank" title="Patreon">
+                                    <i class="fa-brands fa-patreon" style="color: #ffffff; font-size: 1.3rem;"></i>
+                                </a>
                             {% endif %}
                             {% if project.paypal %}
-                                <a href="{{ project.paypal }}" target="_blank" style="color: #f0f6fc; text-decoration: underline;">PayPal</a><br>
+                                <a href="{{ project.paypal }}" target="_blank" title="PayPal">
+                                    <i class="fab fa-paypal" style="color: #009cde; font-size: 1.3rem;"></i>
+                                </a>
                             {% endif %}
-                        {% else %}
-                            <span style="color: #8b949e;">None</span>
-                        {% endif %}
-                    </p>
-                    {% if project.forks_count is not None %}
-                    <p>
-                    <strong>Forks:</strong> 
-                    <i class="fas fa-code-branch" style="color: #58a6ff; margin-right: 4px;"></i>
-                    {{ project.forks_count }}
-                    </p>
-                    {% endif %}
-                    <a href="{% url 'project_detail' project.id %}" class="button is-link" style="background-color: #238636; border: none; padding: 0.5rem 1rem; border-radius: 12px;">View Details</a>
+                        </div>
+                        
+                        <div class="stats-icons">
+                            <!-- Likes with Heart Icon -->
+                            <div title="Likes" class="stat-item">
+                                <i class="fas fa-heart" style="color: #f85149; font-size: 1.3rem;"></i>
+                                <span class="bytesized-font">{{ project.likes.count }}</span>
+                            </div>
+                            
+                            <!-- Forks with Icon -->
+                            {% if project.forks_count is not None %}
+                            <div title="Forks" class="stat-item">
+                                <i class="fas fa-code-branch" style="color: #58a6ff; font-size: 1.3rem;"></i>
+                                <span class="bytesized-font">{{ project.forks_count }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Contributors Needed with Icon -->
+                            <div title="Contributors Needed" class="stat-item">
+                                <i class="fas fa-users" style="color: #7ee787; font-size: 1.3rem;"></i>
+                                <span class="bytesized-font">{{ project.contributors_needed }}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         {% endif %}
         {% empty %}
-        <p class="notification is-info">No projects available yet. Create one to get started!</p>
+        <p class="notification is-info bytesized-font">No projects available yet. Create one to get started!</p>
         {% endfor %}
     </div>
 </section>
+
+<script>
+// Toggle README expand/collapse
+function toggleReadme(projectId) {
+    const preview = document.getElementById(`readme-preview-${projectId}`);
+    const fullReadme = document.getElementById(`full-readme-${projectId}`);
+    const toggleText = document.getElementById(`toggle-text-${projectId}`);
+    const icon = document.getElementById(`arrow-icon-${projectId}`);
+
+    if (fullReadme.style.display === 'none') {
+        // Expand
+        fullReadme.style.display = 'block';
+        preview.style.display = 'none';
+        toggleText.textContent = 'Show less';
+        icon.className = 'fas fa-chevron-up';
+    } else {
+        // Collapse
+        fullReadme.style.display = 'none';
+        preview.style.display = 'block';
+        toggleText.textContent = 'Read more';
+        icon.className = 'fas fa-chevron-down';
+    }
+}
+</script>
 {% endblock %}
