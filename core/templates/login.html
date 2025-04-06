@@ -24,6 +24,18 @@
       min-height: 100vh;
     }
 
+    .top {
+      width: 100%;
+      height: 23px;
+      background: #223259;
+      opacity: 85%;
+      display: flex;                
+      justify-content: center;     
+      align-items: center;         
+      color: white;                
+      font-size: 15px;         
+    }
+
     .glow-background {
       position: absolute;
       width: 600px;
@@ -592,9 +604,26 @@
         font-size: 2rem;
       }
     }
+
+    
+    .hero-image img{
+      margin-top: 2rem;
+      text-align: center;
+      max-width: 60%; 
+    }
+    
+    {% comment %} .hero-image img {
+      max-width: 80%;       /* Reduces the image size */
+      height: auto;
+      border: 4px solid white;  /* Adds white border */
+      border-radius: 12px;   /* Optional: rounded corners */
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1); /* Optional: soft white shadow */
+    } {% endcomment %}
   </style>
 </head>
 <body>
+  <div class="top">You need to add GitHub access token. <span class='icon-blue'>Learn more</span></div>
+
   <header class="navbar">
     <a class="logo" href="{% url 'home' %}">
       <i class="fa-brands fa-github main-logo"></i>
@@ -644,38 +673,12 @@
         <h3>Developer Network</h3>
         <p>Find collaborators with complementary skills for your projects.</p>
       </div>
-    </section>
-     
-    
-    <div class="code-snippet">
-      <div class="window-header">
-        <span class="circle red"></span>
-        <span class="circle yellow"></span>
-        <span class="circle green"></span>
-        <span class="filename">collab-workspace.tsx</span>
+
+      <div class="hero-image">
+        <img src="static/image.png" alt="Collaboration Illustration" />
       </div>
-      <pre><code>import { useCollab } from '@collab/react';
-import { useState, useEffect } from 'react';
 
-export default function CollabWorkspace() {
-  const [project, setProject] = useState(null);
-  const { collaborators, chatMessages } = useCollab('user/repo');
-
-  useEffect(() => {
-    // Initialize the collaborative workspace
-    initializeCollabSession(collaborators);
-  }, [collaborators]);
-
-  return (
-    &lt;div className="collab-workspace"&gt;
-      &lt;CodeEditor /&gt;
-      &lt;ChatPanel messages={chatMessages} /&gt;
-      &lt;ActivityFeed /&gt;
-      &lt;CollaboratorsList users={collaborators} /&gt;
-    &lt;/div&gt;
-  );
-}</code></pre>
-    </div>
+    </section>
   </main>
   
   <main id="features">
@@ -747,7 +750,7 @@ export default function CollabWorkspace() {
       </div>
 
       <div style="max-width: 500px; margin-left: 2rem;">
-        <img src="{% static 'static/collab-workspace.png' %}" alt="Collab Workspace Example" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
+        <img src="static/collab-workspace.png" alt="Collab Workspace Example" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
       </div>
     </div>
   </section>
