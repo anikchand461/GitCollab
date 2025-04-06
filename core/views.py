@@ -22,6 +22,8 @@ def logout_view(request):
 
 @login_required
 def home(request):
+    user_profile, created = Profile.objects.get_or_create(user=request.user)
+    
     projects = Project.objects.all().order_by('-created_at')
     project_requests = {}
 
