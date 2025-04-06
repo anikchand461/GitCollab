@@ -39,8 +39,8 @@
     .glow-background {
       position: absolute;
       width: 800px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%);
+      height: 800px;
+      background: radial-gradient(circle, rgba(99, 101, 241, 0.4) 0%, transparent 70%);
       top: 20%;
       left: 10%;
       z-index: 0;
@@ -686,6 +686,17 @@
     <p class="subtitle">Collab turns your repositories into collaborative hubs where developers can connect, contribute, and build amazing projects together.</p>
 
     <div class="features">
+      <div class="glow-background" style="
+  top: 40%;
+  left: 60%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(212, 60, 192, 0.4) 0%, transparent 80%);
+  position: absolute;
+  z-index: -1;
+  filter: blur(80px);
+"></div>
+
       <div class="card blue">
         <h2>Code Together</h2>
         <p>Real-time collaboration on code with intelligent conflict resolution and instant feedback loops.</p>
@@ -711,12 +722,14 @@
         <p>Fine-grained permissions and secure authentication using your GitHub credentials.</p>
       </div>
     </div>
+    
   </main>
-  
+
   <section class="how-it-works" id="how">
+    
     <h1>How Collab Works</h1>
     <p class="subtitle">Get started in minutes with a streamlined setup process that integrates directly with your GitHub repositories.</p>
-
+    
     <div class="steps-code">
       <div class="steps">
         <div class="step">
