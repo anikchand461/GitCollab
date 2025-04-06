@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse
-from .models import Project, Comment, ContributorRequest, User, Profile
+from .models import Project, Comment, ContributorRequest, User, Profile, Skill
+import markdown
 import requests
 from social_django.models import UserSocialAuth
 from django.contrib import messages
@@ -26,43 +27,57 @@ def logout_view(request):
 
 @login_required
 def home(request):
-    # Step 1: Order projects by latest created first
     projects = Project.objects.all().order_by('-created_at')
-
     project_requests = {}
 
     for project in projects:
-        # Step 2: Get unique users with pending requests (deduped by user)
-        requests = (
+        requests_qs = (
             ContributorRequest.objects
             .filter(project=project, status='pending')
-            .values('requester')  # group by requester
-            .annotate(min_id=Min('id'))[:5]  # get one (earliest) request per user
+            .values('requester')
+            .annotate(min_id=Min('id'))[:5]
         )
 
         request_user_info = []
-        for req in requests:
-            user = User.objects.get(id=req['requester'])  # Fetch the user once per ID
+        for req in requests_qs:
+            user = User.objects.get(id=req['requester'])
             avatar_url = f"https://github.com/{user.username}.png"
             request_user_info.append({
                 'username': user.username,
-                'avatar_url': avatar_url
+                'avatar': avatar_url,  # Fixed from 'avatar_url'
             })
 
         project_requests[project.id] = request_user_info
 
-    # Step 3: Fetch payment URLs from the owner's profile
-    for project in projects:
+        # Add fork count from GitHub API
+        project.forks_count = None
+        if project.repo_link and 'github.com' in project.repo_link:
+            try:
+                owner_repo = project.repo_link.split("github.com/")[1].replace('.git', '')
+                api_url = f"https://api.github.com/repos/{owner_repo}"
+                response = requests.get(api_url, timeout=5)
+                if response.status_code == 200:
+                    data = response.json()
+                    project.forks_count = data.get("forks_count", 0)
+            except Exception:
+                project.forks_count = None
+
+        # Payment URLs
         profile = Profile.objects.filter(user=project.owner).first()
-        project.buy_me_a_coffee_url = profile.buy_me_a_coffee if profile and project.buy_me_a_coffee else None
-        project.patreon_url = profile.patreon if profile and project.patreon else None
-        project.paypal_url = profile.paypal if profile and project.paypal else None
+        project.buy_me_a_coffee = profile.buy_me_a_coffee if profile and project.buy_me_a_coffee else None
+        project.patreon = profile.patreon if profile and project.patreon else None
+        project.paypal = profile.paypal if profile and project.paypal else None
+
+    # Skill Matching
+    user_profile = Profile.objects.get(user=request.user)
+    user_skills = user_profile.skills.values_list('name', flat=True)
+    matched_projects = [p for p in projects if any(skill in user_skills for skill in p.desired_skills.values_list('name', flat=True))]
 
     return render(request, 'home.html', {
         'projects': projects,
-        'project_requests': project_requests
+        'project_requests': project_requests,
+        'matched_projects': matched_projects
     })
-
 
 @login_required
 def create_project(request):
@@ -70,16 +85,15 @@ def create_project(request):
         repo_link = request.POST['repo_link'].strip()
         if not repo_link.startswith('https://github.com/') or len(repo_link.split('/')) < 5:
             return render(request, 'create_project.html', {'error': 'Invalid GitHub repository URL'})
-        # Remove trailing slash and ensure proper format
         repo_link = repo_link.rstrip('/')
         description = request.POST['description']
         contributors_needed = request.POST['contributors_needed']
-        # Get payment options from the form (checkboxes)
         buy_me_a_coffee = 'buy_me_a_coffee' in request.POST
         patreon = 'patreon' in request.POST
         paypal = 'paypal' in request.POST
+        desired_skills = request.POST.getlist('desired_skills')  # Get selected skill names
 
-        Project.objects.create(
+        project = Project.objects.create(
             owner=request.user,
             repo_link=repo_link,
             description=description,
@@ -88,8 +102,15 @@ def create_project(request):
             patreon=patreon,
             paypal=paypal
         )
+        # Add desired skills to the project
+        for skill_name in desired_skills:
+            skill, created = Skill.objects.get_or_create(name=skill_name)
+            project.desired_skills.add(skill)
+
         return redirect('home')
-    return render(request, 'create_project.html')
+    # Pass all skills for the form
+    all_skills = Skill.objects.all()
+    return render(request, 'create_project.html', {'all_skills': all_skills})
 
 import logging
 logger = logging.getLogger(__name__)
@@ -169,17 +190,34 @@ def profile_view(request):
         else:
             # Normal profile update
             profile.bio = request.POST.get('bio', '')
-            profile.readme = request.POST.get('readme', '')  # Save user-edited README
+            profile.readme = request.POST.get('readme', '')
             profile.twitter = request.POST.get('twitter', '')
             profile.linkedin = request.POST.get('linkedin', '')
             profile.buy_me_a_coffee = request.POST.get('buy_me_a_coffee', '')
             profile.patreon = request.POST.get('patreon', '')
             profile.paypal = request.POST.get('paypal', '')
+            
+            # Handle skill updates
+            current_skills = set(profile.skills.values_list('name', flat=True))
+            selected_skills = request.POST.getlist('skills')  # Get selected skill names
+            new_skills = set(selected_skills) - current_skills
+            removed_skills = current_skills - set(selected_skills)
+
+            # Add new skills
+            for skill_name in new_skills:
+                skill, created = Skill.objects.get_or_create(name=skill_name)
+                profile.skills.add(skill)
+
+            # Remove skills
+            for skill_name in removed_skills:
+                skill = Skill.objects.get(name=skill_name)
+                profile.skills.remove(skill)
+
             profile.save()
             messages.success(request, 'Profile updated successfully.')
             return redirect('profile')
 
-    # Only fetch GitHub README on initial page load, not on every request
+    # Fetch GitHub data
     github_username = request.user.username
     github_avatar = f"https://github.com/{github_username}.png"
     
@@ -187,8 +225,10 @@ def profile_view(request):
     reputation = profile.reputation_score()
     
     # Convert README from markdown to HTML
-    import markdown
     readme_html = markdown.markdown(profile.readme) if profile.readme else ""
+    
+    # Get all available skills for the dropdown
+    all_skills = Skill.objects.all()
     
     context = {
         'profile': profile,
@@ -196,7 +236,8 @@ def profile_view(request):
         'github_avatar': github_avatar,
         'reputation': reputation,
         'readme_html': readme_html,
-        'is_new_user': created,  # Pass whether this is a new user
+        'is_new_user': created,
+        'all_skills': all_skills,
     }
     return render(request, 'profile.html', context)
 

@@ -1,6 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class Skill(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    
+    def __str__(self):
+        return self.name
+
 class Project(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='projects')
     repo_link = models.URLField()
@@ -11,6 +17,7 @@ class Project(models.Model):
     buy_me_a_coffee = models.BooleanField(default=False)  # New field
     patreon = models.BooleanField(default=False)         # New field
     paypal = models.BooleanField(default=False)          # New field
+    desired_skills = models.ManyToManyField(Skill, blank=True, related_name='projects')  # New field
 
     def __str__(self):
         return f"{self.owner.username} - {self.repo_link}"
@@ -40,6 +47,7 @@ class Profile(models.Model):
     buy_me_a_coffee = models.URLField(blank=True, null=True)  
     patreon = models.URLField(blank=True, null=True)  
     paypal = models.URLField(blank=True, null=True)
+    skills = models.ManyToManyField(Skill, blank=True, related_name='profiles')
 
 
     def reputation_score(self):

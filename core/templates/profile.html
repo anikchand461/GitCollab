@@ -25,7 +25,18 @@
 
         <br>
         <br>
-
+        
+        <div style="margin: 1rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+          {% for skill in profile.skills.all %}
+            <span style="background-color: #333335; color: #fff; padding: 0.4rem 0.8rem; border-radius: 12px; font-size: 0.85rem;">
+              {{ skill.name }}
+            </span>
+          {% empty %}
+            <p style="color: #8b949e;">No skills added</p>
+          {% endfor %}
+        </div>
+        <br>
+        
         <div style="margin-bottom: 1rem;">
           <h3 style="color: #f0f6fc; font-size: 1.2rem; margin-bottom: 0.5rem;">Social Links</h3>
           <div style="color: #c9d1d9; background-color: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 1rem;">
@@ -131,6 +142,72 @@
                 <input type="url" name="linkedin" value="{{ profile.linkedin|default:'' }}" placeholder="https://linkedin.com/in/yourusername" style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; padding: 0.8rem;">
               </div>
             </div>
+
+            <style>
+              input[type="checkbox"].custom-dark {
+                appearance: none;
+                background-color: #21262d;
+                border: 1px solid #30363d;
+                width: 16px;
+                height: 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                position: relative;
+              }
+              
+              input[type="checkbox"].custom-dark:checked {
+                background-color: #58a6ff;
+                border-color: #58a6ff;
+              }
+              
+              input[type="checkbox"].custom-dark:checked::after {
+                content: '';
+                position: absolute;
+                top: 2px;
+                left: 5px;
+                width: 4px;
+                height: 8px;
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+              }
+            </style>
+            
+            <div style="margin-bottom: 1rem;">
+              <label style="color: #f0f6fc; font-weight: bold; display: block; margin-bottom: 0.5rem;">Skills</label>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                {% for skill in all_skills %}
+                  <label style="background-color: #21262d; color: #f0f6fc; border: 1px solid #30363d; padding: 0.4rem 0.8rem; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
+                    <input type="checkbox" class="custom-dark" name="skills" value="{{ skill.name }}" {% if skill in profile.skills.all %}checked{% endif %}>
+                    {{ skill.name }}
+                    {% if skill in profile.skills.all %}
+                      <span style="cursor: pointer; color: #ff4444; margin-left: 0.3rem;" onclick="removeSkill(this, '{{ skill.name }}')">✖</span>
+                    {% endif %}
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+            
+            <script>
+              function removeSkill(element, skillName) {
+                const label = element.closest('label');
+                const checkbox = label.querySelector('input[type="checkbox"]');
+                checkbox.checked = false;
+                label.style.opacity = '0.6';
+                event.stopPropagation();
+              }
+            
+              document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('[name="skills"]').forEach(checkbox => {
+                  const label = checkbox.closest('label');
+                  label.addEventListener('click', function(e) {
+                    if (e.target.tagName !== 'SPAN') {
+                      checkbox.checked = !checkbox.checked;
+                    }
+                  });
+                });
+              });
+            </script>       
 
             <div style="margin-bottom: 1rem;">
                 <label style="color: #f0f6fc; font-weight: bold; display: block; margin-bottom: 0.5rem;">Crowdfunding Links</label>

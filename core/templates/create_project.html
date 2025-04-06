@@ -3,7 +3,6 @@
 {% block content %}
 <section class="section" style="padding-top: 3rem;">
   <div class="container" style="max-width: 600px; margin: 0 auto;">
-    <!-- Move the heading outside the styled box -->
     <h1 class="title has-text-white" style="
       font-family: 'Bytesize', sans-serif;
       text-align: center;
@@ -13,7 +12,6 @@
       Create Project
     </h1>
 
-    <!-- Styled container for the form -->
     <div style="
       background-color: #161b22;
       padding: 2rem;
@@ -63,6 +61,51 @@
             " type="number" name="contributors_needed" min="0" value="1" required>
           </div>
         </div>
+<!-- Desired Skills -->
+<style>
+  input[type="checkbox"].custom-dark {
+    appearance: none;
+    background-color: #21262d;
+    border: 1px solid #30363d;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  input[type="checkbox"].custom-dark:checked {
+    background-color: #58a6ff;
+    border-color: #58a6ff;
+  }
+
+  input[type="checkbox"].custom-dark:checked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 4px;
+    height: 8px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+</style>
+
+<div class="field">
+  <label class="label has-text-white">Desired Skills</label>
+  <div class="control">
+    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+      {% for skill in all_skills %}
+        <label style="background-color: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 0.4rem 0.8rem; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
+          <input type="checkbox" class="custom-dark" name="desired_skills" value="{{ skill.name }}" {% if skill in profile.desired_skills.all %}checked{% endif %}>
+          {{ skill.name }}
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
 
         <!-- Payment Options -->
         <div class="field">
