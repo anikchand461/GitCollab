@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Collab</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+<body>
+  <header class="navbar">
+    <div class="fa-brands fa-github">  collab</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#how">How it Works</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#pricing">Pricing</a>
+      <button class="cta-btn">
+  <github-btn class="fa-brands fa-github">  Sign in with GitHub</github-btn>
+    </nav>
+  </button>
+  </header>
+  <div class="glow-background"></div>
+
+  <main class="hero">
+    <h1>Supercharge Your <span>GitHub Collaboration</span></h1>
+    <p>Connect, contribute, and build amazing projects together with powerful collaboration tools integrated directly with GitHub.</p>
+    <div class="buttons">
+      <button class="primary-btn"><div class="fa-brands fa-github">Sign in with GitHub</div></button>
+      <button class="secondary-btn">Learn how it works</button>
+    </div>
+    <section class="feature">
+      <div class="feature-grid">
+        <h3>Realtime Collaboration</h3>
+        <p>Work together on code in real-time with intelligent conflict resolution.</p>
+      </div>
+     <br> <div class="feature-grid">
+        <h3>Smart PR Management</h3>
+        <p>Streamline pull requests with automated reviews and intuitive merging.</p>
+      </div>
+      <br><div class="feature-grid">
+        <h3>Developer Network</h3>
+        <p>Find collaborators with complementary skills for your projects.</p>
+      </div>
+      <div class="code-snippet">
+      <div class="window-header">
+        <span class="circle red"></span>
+        <span class="circle yellow"></span>
+        <span class="circle green"></span>
+        <span class="filename">collab-workspace.tsx</span>
+      </div>
+      <pre><code>
+import { useCollab } from '@collab/react';
+import { useState, useEffect } from 'react';
+
+export default function CollabWorkspace() {
+  const [project, setProject] = useState(null);
+  const { collaborators, chatMessages } = useCollab('user/repo');
+
+  useEffect(() => {
+    // Initialize the collaborative workspace
+    initializeCollabSession(collaborators);
+  }, [collaborators]);
+
+  return (
+    &lt;div className="collab-workspace"&gt;
+      &lt;CodeEditor /&gt;
+      &lt;ChatPanel messages={chatMessages} /&gt;
+      &lt;ActivityFeed /&gt;
+      &lt;CollaboratorsList users={collaborators} /&gt;
+    &lt;/div&gt;
+  );
+}
+      </code></pre>
+    </div>
+    </div>
+    </section>
+  </main>
+  <main>
+    <h1>Supercharge Your GitHub Projects</h1>
+    <p class="subtitle">Collab turns your repositories into collaborative hubs where developers can connect, contribute, and build amazing projects together.</p>
+
+    <div class="features">
+      <div class="card blue">
+        <h2>Code Together</h2>
+        <p>Real-time collaboration on code with intelligent conflict resolution and instant feedback loops.</p>
+      </div>
+      <div class="card purple">
+        <h2>Find Collaborators</h2>
+        <p>Connect with developers who share your interests and have complementary skills.</p>
+      </div>
+      <div class="card green">
+        <h2>Streamlined PRs</h2>
+        <p>Simplify the pull request process with automated reviews and intuitive merge workflows.</p>
+      </div>
+      <div class="card yellow">
+        <h2>Smart Documentation</h2>
+        <p>Auto-generate and maintain project documentation as your codebase evolves.</p>
+      </div>
+      <div class="card orange">
+        <h2>Accelerated Workflows</h2>
+        <p>Boost productivity with AI-assisted coding suggestions and automated routine tasks.</p>
+      </div>
+      <div class="card red">
+        <h2>Secure Access</h2>
+        <p>Fine-grained permissions and secure authentication using your GitHub credentials.</p>
+      </div>
+<section class="how-it-works">
+  <h1>How Collab Works</h1>
+  <p class="subtitle">Get started in minutes with a streamlined setup process that integrates directly with your GitHub repositories.</p>
+
+  <div class="steps-code">
+    <div class="steps">
+      <div class="step">
+        <span class="badge badge-blue">1</span>
+        <div>
+          <h3>Connect with GitHub</h3>
+          <p>Sign in with your GitHub account to get instant access to all your repositories.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="badge badge-purple">2</span>
+        <div>
+          <h3>Select Your Projects</h3>
+          <p>Choose which repositories you want to enable for collaboration through Collab.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="badge badge-green">3</span>
+        <div>
+          <h3>Invite Collaborators</h3>
+          <p>Share access with team members or find new contributors from our community.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="badge badge-yellow">4</span>
+        <div>
+          <h3>Start Collaborating</h3>
+          <p>Begin working together with powerful tools to make your project successful.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="window-header">
+        <span class="circle red"></span>
+        <span class="circle yellow"></span>
+        <span class="circle green"></span>
+        <span class="filename">collab-workspace.tsx</span>
+      </div>
+      <pre><code>// Collab integration
+import { useCollab } from '@collab/react';
+
+function ProjectHub() {
+const {
+  collaborators,
+  activities,
+  threads
+} = useCollab('user/repo');
+
+return (
+  &lt;CollabWorkspace&gt;
+    &lt;CodeEditor /&gt;
+    &lt;ActivityFeed data={activities} /&gt;
+    &lt;CollaboratorsList users={collaborators} /&gt;
+    &lt;DiscussionThreads threads={threads} /&gt;
+  &lt;/CollabWorkspace&gt;
+);
+}
+</code></pre>
+    </div>
+  </div>
+</section>
+<section class="stats">
+  <div class="stat">
+    <h2 style="color:#8b5cf6">5,000+</h2>
+    <p>Active Projects</p>
+  </div>
+  <div class="stat">
+    <h2 style="color:#d946ef">25,000+</h2>
+    <p>Developers</p>
+  </div>
+  <div class="stat">
+    <h2 style="color:#fb7185">125,000+</h2>
+    <p>Pull Requests</p>
+  </div>
+  <div class="stat">
+    <h2 style="color:#f97316">98%</h2>
+    <p>Satisfaction Rate</p>
+  </div>
+</section>
+
+<section class="testimonials">
+  <h2>What Developers Are Saying</h2>
+  <p class="subtitle">Join thousands of developers who have transformed their project collaboration experience with Collab.</p>
+
+  <div class="cards">
+    <div class="card">
+      <span class="quote">“</span>
+      <p>Collab has completely transformed how our team works together. The real-time collaboration features have cut our PR review times in half.</p>
+      <div class="profile">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Alex Chen">
+        <div>
+          <strong>Alex Chen</strong><br>
+          <span>Senior Developer, TechCorp</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="quote">“</span>
+      <p>Finding collaborators for my open source project used to be a challenge. With Collab, I connected with talented developers who shared my vision.</p>
+      <div class="profile">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson">
+        <div>
+          <strong>Sarah Johnson</strong><br>
+          <span>Open Source Maintainer</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="quote">“</span>
+      <p>The seamless GitHub integration makes Collab a no-brainer for any development team. It’s become an essential part of our workflow.</p>
+      <div class="profile">
+        <img src="https://randomuser.me/api/portraits/men/60.jpg" alt="Miguel Rodriguez">
+        <div>
+          <strong>Miguel Rodriguez</strong><br>
+          <span>CTO, StartupX</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="cta">
+  <div class="cta-box">
+    <h2><span class="gradient-text">Ready to Transform Your GitHub Experience?</span></h2>
+    <p>Join Collab today and start collaborating with developers around the world. It only takes a minute to get started.</p>
+    <button class="cta-button">Get started </button>
+    <p class="note">We only use your GitHub to verify your identity.</p>
+  </div>
+</section>
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <h3>Collab</h3>
+      <p>Transform your GitHub experience with powerful collaboration tools to help developers connect and build amazing projects together.</p>
+      <div class="social-icons">
+        <!-- GitHub -->
+<a href="https://github.com/yourusername" target="_blank">
+  <i class="fab fa-github"></i>
+</a>
+
+<!-- Twitter -->
+<a href="https://twitter.com/yourusername" target="_blank">
+  <i class="fab fa-twitter"></i>
+</a>
+
+<!-- LinkedIn -->
+<a href="https://linkedin.com/in/yourusername" target="_blank">
+  <i class="fab fa-linkedin"></i>
+</a>
+
+<!-- Email -->
+<a href="mailto:your@email.com">
+  <i class="fas fa-envelope"></i>
+</a>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li>Features</li>
+          <li>Pricing</li>
+          <li>Roadmap</li>
+          <li>Documentation</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li>About</li>
+          <li>Blog</li>
+          <li>Careers</li>
+          <li>Contact</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+<footer>
+  <p>@ 2025 collab. All rights are revserved.</p>
+</footer>
+
+</body>
+</html>
