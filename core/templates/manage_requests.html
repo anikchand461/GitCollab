@@ -1,15 +1,23 @@
 {% extends 'base.html' %}
 {% load project_filters %}
 {% block content %}
+<!-- Flash Message Container -->
+<div id="flash-messages-container" style="position: fixed; top: 1rem; right: 1rem; z-index: 1000;">
+  {% if message %}
+    <div class="flash-message" style="background-color: #141415; color: #fff; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); display: inline-block; max-width: 300px; word-wrap: break-word;">
+      {{ message }}
+    </div>
+  {% endif %}
+  {% if error %}
+    <div class="flash-message" style="background-color: #141415; color: #fff; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); display: inline-block; max-width: 300px; word-wrap: break-word;">
+      {{ error }}
+    </div>
+  {% endif %}
+</div>
+
 <section class="section" style="padding-top: 3rem;">
   <div class="container" style="max-width: 800px; margin: 0 auto;">
     <h1 class="title has-text-white" style="font-family: 'Bytesize', sans-serif; font-size: 40px;">Contributor Requests</h1>
-
-    {% if message %}
-    <p class="notification is-success" style="border-radius: 12px;">{{ message }}</p>
-    {% elif error %}
-    <p class="notification is-danger" style="border-radius: 12px;">{{ error }}</p>
-    {% endif %}
 
     {% for req in requests %}
     <div class="box" style="
@@ -65,8 +73,24 @@
       </div>
     </div>
     {% empty %}
-    <p class="notification is-info" style="border-radius: 12px;">No pending contributor requests.</p>
+    <p class="notification is-info" style="border-radius: 12px; background-color: #141415;">No pending contributor requests.</p>
     {% endfor %}
   </div>
 </section>
+
+<script>
+  // Function to hide flash messages after a delay
+  document.addEventListener('DOMContentLoaded', function () {
+    const flashMessages = document.querySelectorAll('.flash-message');
+    flashMessages.forEach((message) => {
+      setTimeout(() => {
+        message.style.opacity = '0';
+        message.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+          message.style.display = 'none';
+        }, 500); // Wait for the transition to complete before hiding
+      }, 5000); // Hide after 5 seconds
+    });
+  });
+</script>
 {% endblock %}

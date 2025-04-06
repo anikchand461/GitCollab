@@ -118,6 +118,7 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+GITHUB_ACCESS_TOKEN = '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'
 SOCIAL_AUTH_GITHUB_KEY = 'Ov23lilUwOhCqZkPqJ2x'
 SOCIAL_AUTH_GITHUB_SECRET = '8ab0689196f8982dee6603d5bbb625cbf61effb0'
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'repo']  # For collaborator invites

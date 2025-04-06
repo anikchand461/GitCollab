@@ -1,0 +1,864 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Collab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    @font-face {
+      font-family: 'Bytesize';
+      src: url("{% static 'fonts/Bytesized-Regular.ttf' %}") format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at bottom left, #0f172a, #000000);
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      scroll-behavior: smooth;
+      min-height: 100vh;
+    }
+
+    .glow-background {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%);
+      top: 20%;
+      left: 10%;
+      z-index: 0;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background-color: #0a0a0a;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: white;
+    }
+
+    .main-logo {
+      font-size: 2rem;
+      margin-right: 0.7rem;
+    }
+
+    .bytesize-font {
+      font-family: 'Bytesize', sans-serif;
+      font-size: 2rem;
+      font-weight: normal;
+    }
+    
+    nav {
+      display: flex;
+      align-items: center;
+    }
+
+    nav a {
+      color: #e8e9e9;
+      margin: 0 1rem;
+      text-decoration: none;
+    }
+     
+    nav a:hover {
+      color: #2f6fd5;
+    }
+
+    .github-btn {
+      background-color: white;
+      color: #000000;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    .github-btn i {
+      color: black;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+    
+    .hero {
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      z-index: 1;
+      margin-bottom: -80px;
+    }
+    
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .hero h1 span {
+      color: #ccc;
+    }
+    
+    .hero p {
+      color: #aaa;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+   
+    .buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .buttons button {
+      margin: 0.5rem;
+      padding: 0.8rem 1.4rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    .primary-btn {
+      background-color: white;
+      color: black;
+    }
+
+    .primary-btn i {
+      color: black;
+      margin-right: 0.5rem;
+    }
+    
+    .secondary-btn {
+      background-color: #1f1f1f;
+      color: white;
+      border: 1px solid #444;
+    }
+    
+    .feature {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    
+    .feature-grid {
+      background-color: #1c1c1c;
+      padding: 1.5rem;
+      border-radius: 12px;
+      width: 250px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .feature-grid h3 {
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+    
+    .feature-grid p {
+      color: #aaa;
+      margin-bottom: 0;
+    }
+
+    .feature-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
+  display: inline-block;
+}
+
+.icon-blue {
+  color: #58a6ff;
+}
+
+.icon-green {
+  color: #3fb950;
+}
+
+.icon-purple {
+  color: #bc8cff;
+}
+
+
+.code-image {
+  width: 100%;
+  display: block;
+  border-radius: 10px;
+}
+
+    .window-header {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background: #2a2a2a;
+    }
+    
+    .circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    
+    .red { background: #ff5f56; }
+    .yellow { background: #ffbd2e; }
+    .green { background: #27c93f; }
+    
+    .filename {
+      margin-left: 1rem;
+      color: #ccc;
+      font-weight: bold;
+    }
+    
+    pre {
+      margin: 0;
+      padding: 1rem;
+      background: #1a1a1a;
+      overflow-x: auto;
+      font-size: 0.95rem;
+      color: #e8e9e9;
+    }
+
+    code {
+      font-family: monospace;
+    }
+    
+    main {
+      text-align: center;
+      padding: 60px 20px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      max-width: 600px;
+      margin: 0 auto 50px;
+      color: #aaa;
+    }
+    
+    .features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* Force exactly 3 columns */
+  grid-template-rows: repeat(3, auto);    /* 3 rows with automatic height */
+  gap: 1.5rem;  /* This creates space between grid items */
+  margin-top: 2rem;
+  max-width: 1000px;  /* Control overall grid width */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.card {
+  background-color: #1a1a1a;
+  padding: 25px;
+  border-radius: 10px;
+  width: 280px;  /* Fixed width instead of percentage */
+  text-align: left;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  /* Remove justify-items from parent and use this instead */
+  justify-self: center;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.card p {
+  color: #ccc;
+}
+
+/* Color accents */
+.blue h2::before { content: "⟨⟩ "; color: #2d72ff; }
+.purple h2::before { content: "👥 "; color: #a259ff; }
+.green h2::before { content: "⎇ "; color: #00c853; }
+.yellow h2::before { content: "📖 "; color: #ffd600; }
+.orange h2::before { content: "⚡ "; color: #ff9100; }
+.red h2::before { content: "🔒 "; color: #ff5252; }
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .features {
+    grid-template-columns: repeat(2, 1fr);  /* 2 columns on medium screens */
+  }
+  
+  .card {
+    width: 250px;  /* Slightly smaller cards on medium screens */
+  }
+}
+
+@media (max-width: 600px) {
+  .features {
+    grid-template-columns: 1fr;  /* 1 column on small screens */
+  }
+  
+  .card {
+    width: 280px;  /* Return to original size on small screens */
+  }
+}
+
+    .how-it-works {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+    
+    .how-it-works h1 {
+      font-size: 2.5rem;
+      text-align: center;
+    }
+    
+    .steps-code {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin-top: 2rem;
+      justify-content: center;
+    }
+    
+    .steps {
+      flex: 1;
+      min-width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    
+    .badge {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-weight: bold;
+      color: white;
+      font-size: 1rem;
+    }
+    
+    .badge-blue { background-color: #3b82f6; }
+    .badge-purple { background-color: #8b5cf6; }
+    .badge-green { background-color: #10b981; }
+    .badge-yellow { background-color: #facc15; }
+    
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      padding: 3rem 1rem;
+      flex-wrap: wrap;
+      background-color: #0f172a00;
+    }
+    
+    .stat h2 {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .stat p {
+      margin: 0;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+    
+    .testimonials {
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    
+    .testimonials h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .testimonials .subtitle {
+      color: #94a3b8;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+    }
+    
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+    }
+    
+    .testimonials .card {
+      background-color: #161616;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      max-width: 300px;
+      text-align: left;
+      position: relative;
+    }
+    
+    .quote {
+      font-size: 2.5rem;
+      color: #6366f1;
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+    }
+    
+    .testimonials .card p {
+      padding-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      object-fit: cover;
+    }
+    
+    .profile span {
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+
+    .cta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 2rem;
+    }
+    
+    .cta-box {
+      text-align: center;
+      max-width: 600px;
+    }
+    
+    .cta-box h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .gradient-text {
+      background: linear-gradient(to right, #6366f1, #d946ef);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .cta-box p {
+      margin-bottom: 1.5rem;
+      color: #cbd5e1;
+    }
+    
+    .cta-button {
+      background-color: white;
+      color: black;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 99px;
+      cursor: pointer;
+      border: none;
+    }
+    
+    .note {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      margin-top: 1rem;
+    }
+    
+    .footer {
+      background-color: #020306;
+      padding: 3rem 2rem;
+      border-top: 1px solid #1e293b;
+    }
+    
+    .footer-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .footer-brand {
+      flex: 1;
+      min-width: 250px;
+    }
+    
+    .footer-brand h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer-brand p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+    
+    .social-icons {
+      margin-top: 1rem;
+    }
+    
+    .social-icons a {
+      margin-right: 1rem;
+      color: #94a3b8;
+      text-decoration: none;
+    }
+    
+    .footer-links {
+      display: flex;
+      gap: 3rem;
+      flex: 1;
+      min-width: 250px;
+    }
+    
+    .footer-links h4 {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    
+    .footer-links ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .footer-links li {
+      margin-bottom: 0.5rem;
+      color: #cbd5e1;
+      cursor: pointer;
+    }
+    
+    i {
+      font-size: 24px;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .feature {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .steps-code {
+        flex-direction: column;
+      }
+      
+      .navbar {
+        flex-direction: column;
+        padding: 1rem;
+      }
+      
+      nav {
+        margin-top: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      nav a {
+        margin: 0.5rem;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <a class="logo" href="{% url 'home' %}">
+      <i class="fa-brands fa-github main-logo"></i>
+      <strong class="bytesize-font">Collab</strong>
+    </a>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#how">How it Works</a>
+      <a href="#testimonials">Testimonials</a>
+      <button class="github-btn" onclick="window.location.href='{% url 'social:begin' 'github' %}'">
+        <i class="fa-brands fa-github"></i> Sign in with GitHub
+      </button>
+      
+    </nav>
+  </header>
+  
+  <div class="glow-background"></div>
+
+  <main class="hero">
+    <h1>Supercharge Your <span>GitHub Collaboration</span></h1>
+    <p>Connect, contribute, and build amazing projects together with powerful collaboration tools integrated directly with GitHub.</p>
+    <div class="buttons">
+      <a href="{% url 'social:begin' 'github' %}" style="text-decoration: none;">
+        <button class="primary-btn">
+          <i class="fa-brands fa-github"></i> Sign in with GitHub
+        </button>
+      </a>
+      
+      <button class="secondary-btn">Learn how it works</button>
+    </div>
+    
+    <section class="feature">
+      <div class="feature-grid">
+        <i class="fa-solid fa-users-gear feature-icon icon-blue"></i>
+        <h3>Realtime Collaboration</h3>
+        <p>Work together on code in real-time with intelligent conflict resolution.</p>
+      </div>
+    
+      <div class="feature-grid">
+        <i class="fa-solid fa-code-branch feature-icon icon-green"></i>
+        <h3>Smart PR Management</h3>
+        <p>Streamline pull requests with automated reviews and intuitive merging.</p>
+      </div>
+    
+      <div class="feature-grid">
+        <i class="fa-solid fa-people-arrows feature-icon icon-purple"></i>
+        <h3>Developer Network</h3>
+        <p>Find collaborators with complementary skills for your projects.</p>
+      </div>
+    </section>
+     
+    
+    <div class="code-snippet">
+      <div class="window-header">
+        <span class="circle red"></span>
+        <span class="circle yellow"></span>
+        <span class="circle green"></span>
+        <span class="filename">collab-workspace.tsx</span>
+      </div>
+      <pre><code>import { useCollab } from '@collab/react';
+import { useState, useEffect } from 'react';
+
+export default function CollabWorkspace() {
+  const [project, setProject] = useState(null);
+  const { collaborators, chatMessages } = useCollab('user/repo');
+
+  useEffect(() => {
+    // Initialize the collaborative workspace
+    initializeCollabSession(collaborators);
+  }, [collaborators]);
+
+  return (
+    &lt;div className="collab-workspace"&gt;
+      &lt;CodeEditor /&gt;
+      &lt;ChatPanel messages={chatMessages} /&gt;
+      &lt;ActivityFeed /&gt;
+      &lt;CollaboratorsList users={collaborators} /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+    </div>
+  </main>
+  
+  <main id="features">
+    <h1>Supercharge Your GitHub Projects</h1>
+    <p class="subtitle">Collab turns your repositories into collaborative hubs where developers can connect, contribute, and build amazing projects together.</p>
+
+    <div class="features">
+      <div class="card blue">
+        <h2>Code Together</h2>
+        <p>Real-time collaboration on code with intelligent conflict resolution and instant feedback loops.</p>
+      </div>
+      <div class="card purple">
+        <h2>Find Collaborators</h2>
+        <p>Connect with developers who share your interests and have complementary skills.</p>
+      </div>
+      <div class="card green">
+        <h2>Streamlined PRs</h2>
+        <p>Simplify the pull request process with automated reviews and intuitive merge workflows.</p>
+      </div>
+      <div class="card yellow">
+        <h2>Smart Documentation</h2>
+        <p>Auto-generate and maintain project documentation as your codebase evolves.</p>
+      </div>
+      <div class="card orange">
+        <h2>Accelerated Workflows</h2>
+        <p>Boost productivity with AI-assisted coding suggestions and automated routine tasks.</p>
+      </div>
+      <div class="card red">
+        <h2>Secure Access</h2>
+        <p>Fine-grained permissions and secure authentication using your GitHub credentials.</p>
+      </div>
+    </div>
+  </main>
+  
+  <section class="how-it-works" id="how">
+    <h1>How Collab Works</h1>
+    <p class="subtitle">Get started in minutes with a streamlined setup process that integrates directly with your GitHub repositories.</p>
+
+    <div class="steps-code">
+      <div class="steps">
+        <div class="step">
+          <span class="badge badge-blue">1</span>
+          <div>
+            <h3>Connect with GitHub</h3>
+            <p>Sign in with your GitHub account to get instant access to all your repositories.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="badge badge-purple">2</span>
+          <div>
+            <h3>Select Your Projects</h3>
+            <p>Choose which repositories you want to enable for collaboration through Collab.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="badge badge-green">3</span>
+          <div>
+            <h3>Invite Collaborators</h3>
+            <p>Share access with team members or find new contributors from our community.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="badge badge-yellow">4</span>
+          <div>
+            <h3>Start Collaborating</h3>
+            <p>Begin working together with powerful tools to make your project successful.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width: 500px; margin-left: 2rem;">
+        <img src="{% static 'static/collab-workspace.png' %}" alt="Collab Workspace Example" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
+      </div>
+    </div>
+  </section>
+  
+  <section class="stats">
+    <div class="stat">
+      <h2 style="color:#8b5cf6">5,000+</h2>
+      <p>Active Projects</p>
+    </div>
+    <div class="stat">
+      <h2 style="color:#d946ef">25,000+</h2>
+      <p>Developers</p>
+    </div>
+    <div class="stat">
+      <h2 style="color:#fb7185">125,000+</h2>
+      <p>Pull Requests</p>
+    </div>
+    <div class="stat">
+      <h2 style="color:#f97316">98%</h2>
+      <p>Satisfaction Rate</p>
+    </div>
+  </section>
+
+  <section class="testimonials" id="testimonials">
+    <h2>What Developers Are Saying</h2>
+    <p class="subtitle">Join thousands of developers who have transformed their project collaboration experience with Collab.</p>
+
+    <div class="cards">
+      <div class="card">
+        <span class="quote">"</span>
+        <p>Collab has completely transformed how our team works together. The real-time collaboration features have cut our PR review times in half.</p>
+        <div class="profile">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Alex Chen">
+          <div>
+            <strong>Alex Chen</strong><br>
+            <span>Senior Developer, TechCorp</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="quote">"</span>
+        <p>Finding collaborators for my open source project used to be a challenge. With Collab, I connected with talented developers who shared my vision.</p>
+        <div class="profile">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson">
+          <div>
+            <strong>Sarah Johnson</strong><br>
+            <span>Open Source Maintainer</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="quote">"</span>
+        <p>The seamless GitHub integration makes Collab a no-brainer for any development team. It's become an essential part of our workflow.</p>
+        <div class="profile">
+          <img src="https://randomuser.me/api/portraits/men/60.jpg" alt="Miguel Rodriguez">
+          <div>
+            <strong>Miguel Rodriguez</strong><br>
+            <span>CTO, StartupX</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <a class="logo" href="{% url 'home' %}">
+          <i class="fa-brands fa-github main-logo"></i>
+          <strong class="bytesize-font">Collab</strong>
+        </a>
+        <p>Transform your GitHub experience with powerful collaboration tools to help developers connect and build amazing projects together.</p>
+        <div class="social-icons">
+          <a href="https://github.com/yourusername" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="https://twitter.com/yourusername" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="https://linkedin.com/in/yourusername" target="_blank">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a href="mailto:your@email.com">
+            <i class="fas fa-envelope"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li>Features</li>
+            <li>Roadmap</li>
+            <li>Documentation</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li>About</li>
+            <li>Blog</li>
+            <li>Careers</li>
+            <li>Contact</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
