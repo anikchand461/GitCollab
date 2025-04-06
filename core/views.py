@@ -10,6 +10,8 @@ from django.contrib import messages
 from django.conf import settings
 from django.db.models import Min
 from django.utils.html import mark_safe
+from django.core.cache import cache
+from django.utils import timezone
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -25,65 +27,83 @@ def logout_view(request):
 def home(request):
     user_profile, created = Profile.objects.get_or_create(user=request.user)
     
-    projects = Project.objects.all().order_by('-created_at')
-    project_requests = {}
+    # Cache key for projects (daily refresh)
+    cache_key_projects = f'home_projects_{timezone.now().date()}'
+    projects = cache.get(cache_key_projects)
+    if not projects:
+        projects = Project.objects.all().order_by('-created_at')
+        project_requests = {}
+        
+        for project in projects:
+            # Cache key for project requests
+            cache_key_requests = f'project_requests_{project.id}'
+            requests_data = cache.get(cache_key_requests)
+            if not requests_data:
+                requests_qs = (
+                    ContributorRequest.objects
+                    .filter(project=project, status='pending')
+                    .values('requester')
+                    .annotate(min_id=Min('id'))[:5]
+                )
+                request_user_info = []
+                for req in requests_qs:
+                    user = User.objects.get(id=req['requester'])
+                    avatar_url = f"https://github.com/{user.username}.png"
+                    request_user_info.append({
+                        'username': user.username,
+                        'avatar': avatar_url,
+                    })
+                project_requests[project.id] = request_user_info
+                cache.set(cache_key_requests, request_user_info, 3600)  # Cache for 1 hour
+            else:
+                project_requests[project.id] = requests_data
 
-    for project in projects:
-        requests_qs = (
-            ContributorRequest.objects
-            .filter(project=project, status='pending')
-            .values('requester')
-            .annotate(min_id=Min('id'))[:5]
-        )
+            # Cache GitHub API data
+            cache_key_github = f'github_data_{project.repo_link}'
+            github_data = cache.get(cache_key_github)
+            if not github_data:
+                github_data = {}
+                if project.repo_link and 'github.com' in project.repo_link:
+                    try:
+                        owner_repo = project.repo_link.split("github.com/")[1].replace('.git', '')
+                        api_url = f"https://api.github.com/repos/{owner_repo}"
+                        response = requests.get(api_url, timeout=5)
+                        if response.status_code == 200:
+                            data = response.json()
+                            github_data['forks_count'] = data.get("forks_count", 0)
+                    except Exception:
+                        github_data['forks_count'] = None
 
-        request_user_info = []
-        for req in requests_qs:
-            user = User.objects.get(id=req['requester'])
-            avatar_url = f"https://github.com/{user.username}.png"
-            request_user_info.append({
-                'username': user.username,
-                'avatar': avatar_url,
-            })
+                    try:
+                        readme_url = f"https://raw.githubusercontent.com/{owner_repo}/main/README.md"
+                        readme_response = requests.get(readme_url, timeout=5)
+                        if readme_response.status_code == 200:
+                            readme_content = readme_response.text
+                            github_data['readme_html'] = mark_safe(markdown.markdown(readme_content))
+                    except Exception:
+                        github_data['readme_html'] = None
+                cache.set(cache_key_github, github_data, 3600)  # Cache for 1 hour
+            project.forks_count = github_data.get('forks_count')
+            project.readme_html = github_data.get('readme_html')
 
-        project_requests[project.id] = request_user_info
+            # Payment URLs (cached with profile data if needed)
+            profile = Profile.objects.filter(user=project.owner).first()
+            project.buy_me_a_coffee = profile.buy_me_a_coffee if profile and project.buy_me_a_coffee else None
+            project.patreon = profile.patreon if profile and project.patreon else None
+            project.paypal = profile.paypal if profile and project.paypal else None
 
-        # Add fork count from GitHub API
-        project.forks_count = None
-        if project.repo_link and 'github.com' in project.repo_link:
-            try:
-                owner_repo = project.repo_link.split("github.com/")[1].replace('.git', '')
-                api_url = f"https://api.github.com/repos/{owner_repo}"
-                response = requests.get(api_url, timeout=5)
-                if response.status_code == 200:
-                    data = response.json()
-                    project.forks_count = data.get("forks_count", 0)
-            except Exception:
-                project.forks_count = None
+        cache.set(cache_key_projects, projects, 3600)  # Cache for 1 hour
+    else:
+        project_requests = {p.id: cache.get(f'project_requests_{p.id}') for p in projects}
 
-        # Fetch README from GitHub API
-        project.readme_html = None
-        if project.repo_link and 'github.com' in project.repo_link:
-            try:
-                owner_repo = project.repo_link.split("github.com/")[1].replace('.git', '')
-                readme_url = f"https://raw.githubusercontent.com/{owner_repo}/main/README.md"
-                readme_response = requests.get(readme_url, timeout=5)
-                if readme_response.status_code == 200:
-                    readme_content = readme_response.text
-                    # Convert Markdown to HTML
-                    project.readme_html = mark_safe(markdown.markdown(readme_content))
-            except Exception:
-                project.readme_html = None
-
-        # Payment URLs
-        profile = Profile.objects.filter(user=project.owner).first()
-        project.buy_me_a_coffee = profile.buy_me_a_coffee if profile and project.buy_me_a_coffee else None
-        project.patreon = profile.patreon if profile and project.patreon else None
-        project.paypal = profile.paypal if profile and project.paypal else None
-
-    # Skill Matching
-    user_profile = Profile.objects.get(user=request.user)
-    user_skills = user_profile.skills.values_list('name', flat=True)
-    matched_projects = [p for p in projects if any(skill in user_skills for skill in p.desired_skills.values_list('name', flat=True))]
+    # Cache skill matching
+    cache_key_matched = f'matched_projects_{request.user.id}'
+    matched_projects = cache.get(cache_key_matched)
+    if not matched_projects:
+        user_profile = Profile.objects.get(user=request.user)
+        user_skills = user_profile.skills.values_list('name', flat=True)
+        matched_projects = [p for p in projects if any(skill in user_skills for skill in p.desired_skills.values_list('name', flat=True))]
+        cache.set(cache_key_matched, matched_projects, 3600)  # Cache for 1 hour
 
     return render(request, 'home.html', {
         'projects': projects,
@@ -98,6 +118,11 @@ def create_project(request):
         if not repo_link.startswith('https://github.com/') or len(repo_link.split('/')) < 5:
             return render(request, 'create_project.html', {'error': 'Invalid GitHub repository URL'})
         repo_link = repo_link.rstrip('/')
+        # Validate that the repo belongs to the logged-in user
+        repo_parts = repo_link.split('https://github.com/')[1].split('/')
+        if len(repo_parts) >= 2 and repo_parts[0] != request.user.username:
+            return render(request, 'create_project.html', {'error': 'Repository must belong to your GitHub account (username mismatch)'})
+        
         description = request.POST['description']
         contributors_needed = request.POST['contributors_needed']
         buy_me_a_coffee = 'buy_me_a_coffee' in request.POST
@@ -119,6 +144,7 @@ def create_project(request):
             skill, created = Skill.objects.get_or_create(name=skill_name)
             project.desired_skills.add(skill)
 
+        messages.success(request, 'Project created successfully!')
         return redirect('home')
     # Pass all skills for the form
     all_skills = Skill.objects.all()
@@ -259,12 +285,6 @@ def profile_view(request):
         'all_skills': all_skills,
     }
     return render(request, 'profile.html', context)
-
-from django.shortcuts import render, get_object_or_404
-from django.http import Http404
-from django.contrib.auth.decorators import login_required
-from .models import Project, ContributorRequest, Profile
-import requests
 
 @login_required
 def manage_requests(request):

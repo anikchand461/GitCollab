@@ -132,3 +132,10 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # Project-level static files (optional)
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}

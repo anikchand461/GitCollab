@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<section class="section" style="padding-top: 3rem;">
+<section class="section" style="padding-top: 3rem; position: relative;">
   <div class="container" style="max-width: 600px; margin: 0 auto;">
     <h1 class="title has-text-white" style="
       font-family: 'Bytesize', sans-serif;
@@ -12,6 +12,29 @@
       Create Project
     </h1>
 
+    <!-- Flash Messages -->
+    {% if messages %}
+      <div id="flash-messages-container" style="position: fixed; top: 1rem; right: 1rem; z-index: 1000;">
+        {% for message in messages %}
+          <div class="flash-message" style="
+            background-color: #141415;
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            display: inline-block;
+            max-width: {{ message|length|add:20 }}px; /* Dynamic width based on message length */
+            word-wrap: break-word;
+            min-width: 200px;
+            transition: opacity 0.5s ease-in-out;
+          ">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <div style="
       background-color: #161b22;
       padding: 2rem;
@@ -20,8 +43,23 @@
       border: 1px solid #30363d;
     ">
       {% if error %}
-      <p class="notification is-danger" style="border-radius: 12px;">{{ error }}</p>
+      <p id="error-message" class="notification is-danger" style="border-radius: 12px; background-color: #141415; color: #fff;">
+        {{ error }}
+      </p>
+      
+      <script>
+        // Fade out after 3 seconds
+        setTimeout(() => {
+          const msg = document.getElementById('error-message');
+          if (msg) {
+            msg.style.transition = 'opacity 0.5s ease';
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 500); // remove from DOM after fade out
+          }
+        }, 3000);
+      </script>
       {% endif %}
+      
 
       <form method="post" class="box" style="background: none; box-shadow: none; padding: 0;">
         {% csrf_token %}
@@ -34,8 +72,9 @@
               border: 1px solid #30363d;
               color: #f0f6fc;
               border-radius: 10px;
-            " type="url" name="repo_link" placeholder="https://github.com/username/repo" required>
+            " type="url" name="repo_link" placeholder="https://github.com/{{ request.user.username }}/repo" required>
           </div>
+          <small style="color: #8b949e;">Must be a valid GitHub repository URL owned by you (e.g., https://github.com/{{ request.user.username }}/yourrepo).</small>
         </div>
 
         <div class="field">
@@ -61,51 +100,51 @@
             " type="number" name="contributors_needed" min="0" value="1" required>
           </div>
         </div>
-<!-- Desired Skills -->
-<style>
-  input[type="checkbox"].custom-dark {
-    appearance: none;
-    background-color: #21262d;
-    border: 1px solid #30363d;
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    position: relative;
-  }
 
-  input[type="checkbox"].custom-dark:checked {
-    background-color: #58a6ff;
-    border-color: #58a6ff;
-  }
+        <!-- Desired Skills -->
+        <style>
+          input[type="checkbox"].custom-dark {
+            appearance: none;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+          }
 
-  input[type="checkbox"].custom-dark:checked::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 5px;
-    width: 4px;
-    height: 8px;
-    border: solid #fff;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-  }
-</style>
+          input[type="checkbox"].custom-dark:checked {
+            background-color: #58a6ff;
+            border-color: #58a6ff;
+          }
 
-<div class="field">
-  <label class="label has-text-white">Desired Skills</label>
-  <div class="control">
-    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-      {% for skill in all_skills %}
-        <label style="background-color: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 0.4rem 0.8rem; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
-          <input type="checkbox" class="custom-dark" name="desired_skills" value="{{ skill.name }}" {% if skill in profile.desired_skills.all %}checked{% endif %}>
-          {{ skill.name }}
-        </label>
-      {% endfor %}
-    </div>
-  </div>
-</div>
+          input[type="checkbox"].custom-dark:checked::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 5px;
+            width: 4px;
+            height: 8px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+          }
+        </style>
 
+        <div class="field">
+          <label class="label has-text-white">Desired Skills</label>
+          <div class="control">
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              {% for skill in all_skills %}
+                <label style="background-color: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 0.4rem 0.8rem; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
+                  <input type="checkbox" class="custom-dark" name="desired_skills" value="{{ skill.name }}">
+                  {{ skill.name }}
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
 
         <!-- Payment Options -->
         <div class="field">
@@ -141,4 +180,20 @@
     </div>
   </div>
 </section>
+
+<!-- JavaScript for Auto-Hiding Flash Messages -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const flashMessages = document.querySelectorAll('.flash-message');
+    flashMessages.forEach(message => {
+      setTimeout(() => {
+        message.style.opacity = '0';
+        message.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+          message.remove();
+        }, 500); // Remove the message after fading out
+      }, 3000); // Show the message for 3 seconds
+    });
+  });
+</script>
 {% endblock %}
