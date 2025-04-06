@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -118,9 +120,8 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-GITHUB_ACCESS_TOKEN = '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'
-SOCIAL_AUTH_GITHUB_KEY = 'Ov23lilUwOhCqZkPqJ2x'
-SOCIAL_AUTH_GITHUB_SECRET = '8ab0689196f8982dee6603d5bbb625cbf61effb0'
+SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'repo']  # For collaborator invites
 
 LOGIN_URL = '/login/'
