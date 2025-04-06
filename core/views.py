@@ -26,7 +26,6 @@ def home(request):
     projects = Project.objects.all().order_by('-created_at')
     project_requests = {}
 
-
     for project in projects:
         requests_qs = (
             ContributorRequest.objects
