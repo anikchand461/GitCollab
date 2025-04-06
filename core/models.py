@@ -19,6 +19,7 @@ class Project(models.Model):
     paypal = models.BooleanField(default=False)          # New field
     desired_skills = models.ManyToManyField(Skill, blank=True, related_name='projects')  # New field
 
+
     def __str__(self):
         return f"{self.owner.username} - {self.repo_link}"
 
@@ -48,6 +49,16 @@ class Profile(models.Model):
     patreon = models.URLField(blank=True, null=True)  
     paypal = models.URLField(blank=True, null=True)
     skills = models.ManyToManyField(Skill, blank=True, related_name='profiles')
+    access_token = models.CharField(max_length=40, blank=True, null=True)  # New field
+
+    def reputation_score(self):
+        # Example logic for reputation score
+        return 42  # Replace with actual logic
+
+    def masked_access_token(self):
+        if self.access_token:
+            return '•' * len(self.access_token)  # Mask the token
+        return None
 
 
     def reputation_score(self):

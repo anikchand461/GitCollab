@@ -192,6 +192,13 @@ def profile_view(request):
             profile.patreon = request.POST.get('patreon', '')
             profile.paypal = request.POST.get('paypal', '')
             
+            # Handle access token with validation
+            access_token = request.POST.get('access_token', '').strip()
+            if access_token and len(access_token) != 40:
+                messages.error(request, 'Access token must be exactly 40 characters long.')
+                return redirect('profile')
+            profile.access_token = access_token
+            
             # Handle skill updates
             current_skills = set(profile.skills.values_list('name', flat=True))
             selected_skills = request.POST.getlist('skills')  # Get selected skill names
@@ -235,7 +242,6 @@ def profile_view(request):
         'all_skills': all_skills,
     }
     return render(request, 'profile.html', context)
-
 
 @login_required
 def manage_requests(request):

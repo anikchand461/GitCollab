@@ -90,7 +90,14 @@
             {% endif %}
             </div>
         </div>
-  
+        
+        <!-- Access Token (View Mode) -->
+      <div style="margin-bottom: 1rem;">
+        <h3 style="color: #f0f6fc; font-size: 1.2rem; margin-bottom: 0.5rem;">Access Token</h3>
+        <div style="color: #c9d1d9; background-color: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 1rem;">
+          {{ profile.masked_access_token|default:'No access token set' }}
+        </div>
+      </div>
       </div>
 
       <!-- Right Panel -->
@@ -141,6 +148,13 @@
                 <i class="fab fa-linkedin" style="color: #0077b5; font-size: 1.2rem;"></i>
                 <input type="url" name="linkedin" value="{{ profile.linkedin|default:'' }}" placeholder="https://linkedin.com/in/yourusername" style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; padding: 0.8rem;">
               </div>
+
+            <!-- Access Token (Edit Mode) -->
+          <div style="margin-bottom: 1rem;">
+            <label style="color: #f0f6fc; font-weight: bold; display: block; margin-bottom: 0.5rem;">Access Token</label>
+            <input type="text" name="access_token" value="{{ profile.access_token|default:'' }}" placeholder="Enter your 40-character access token" style="background-color: #0d1117; border: 1px solid #30363d; color: #f0f6fc; border-radius: 10px; width: 100%; padding: 0.8rem;">
+            <small style="color: #8b949e;">Access token must be exactly 40 characters long.</small>
+          </div>
             </div>
 
             <style>
