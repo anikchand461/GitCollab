@@ -245,12 +245,20 @@ def profile_view(request):
     }
     return render(request, 'profile.html', context)
 
+from django.shortcuts import render, get_object_or_404
+from django.http import Http404
+from django.contrib.auth.decorators import login_required
+from .models import Project, ContributorRequest, Profile
+import requests
+
 @login_required
 def manage_requests(request):
+    # Get projects owned by the current user
     projects = Project.objects.filter(owner=request.user)
     if not projects.exists():
         return render(request, 'manage_requests.html', {'message': 'You have no projects with contributor requests.'})
     
+    # Fetch pending contributor requests for the user's projects
     raw_requests = ContributorRequest.objects.filter(project__in=projects, status='pending')
 
     contributor_requests = []
@@ -276,6 +284,7 @@ def manage_requests(request):
         action = request.POST['action']
         req = get_object_or_404(ContributorRequest, id=req_id)
 
+        # Ensure the current user owns the project associated with the request
         if req.project.owner != request.user:
             raise Http404("You are not authorized to manage this request.")
 
@@ -308,10 +317,25 @@ def manage_requests(request):
             repo_owner = repo_parts[-2]
             repo_name = repo_parts[-1]
 
+            # Get the user's access token from their profile
+            try:
+                profile = Profile.objects.get(user=request.user)
+                access_token = profile.access_token
+                if not access_token:
+                    return render(request, 'manage_requests.html', {
+                        'requests': contributor_requests,
+                        'error': 'You have not set a GitHub access token in your profile.'
+                    })
+            except Profile.DoesNotExist:
+                return render(request, 'manage_requests.html', {
+                    'requests': contributor_requests,
+                    'error': 'Your profile is missing or incomplete.'
+                })
+
             # GitHub API request to add collaborator
             api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/collaborators/{requester_username}"
             headers = {
-                "Authorization": f"Bearer {settings.GITHUB_ACCESS_TOKEN}",
+                "Authorization": f"Bearer {access_token}",
                 "Accept": "application/vnd.github+json"
             }
 
